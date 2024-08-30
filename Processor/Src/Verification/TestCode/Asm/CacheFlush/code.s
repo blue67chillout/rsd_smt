@@ -21,6 +21,16 @@ stloop:
     # Cache flush
     fence.i
 
+
+check_hwcounter:
+    csrr    a2, mhpmcounter3       # Read load cache miss count
+    lw      a1, -4(a0)             # Access last stored data (this entry must be flushed)
+    csrr    a3, mhpmcounter3       # Read load cache miss count again
+    bleu     a3, a2, end           # Check whether cache miss count is increased
+
+    # Cache flush
+    fence.i
+
     li      a0, 0x80018000
 
 ldloop:
