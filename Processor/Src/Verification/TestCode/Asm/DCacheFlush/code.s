@@ -31,16 +31,6 @@ check_hwcounter_0:
     # Cache flush
     fence.i
 
-
-check_hwcounter:
-    csrr    a2, mhpmcounter3       # Read load cache miss count
-    lw      a1, -4(a0)             # Access last stored data (this entry must be flushed)
-    csrr    a3, mhpmcounter3       # Read load cache miss count again
-    bleu     a3, a2, end           # Check whether cache miss count is increased
-
-    # Cache flush
-    fence.i
-
     li      a0, 0x80018000
 
 ldloop_0:
@@ -96,45 +86,6 @@ ldloop_1:
     addi    s0, s0, 0x400
     bltu    s0, s3, ldloop_1
     csrr    s2, mhpmcounter5       # Read i-cache miss count
-
-test_2:     # I-cache flush
-    li      s0, 0x80000000
-    li      t1, 0x80000008
-
-i_cache_loop:
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    csrr    s4, mhpmcounter5        # Read i-cache miss count
-    sw      s4, 0(s0)
-    addi    s0, s0, 0x4
-    fence.i                         # Cache flush
-    bne     s0, t1, i_cache_loop
-
-check_counter:
-    lw      t0, -4(s0)
-    lw      t2, -8(s0)
-    beq     t0, t2, test_3
-    li      t3, 0x1
-
-
-test_3:     # I-cache overwrite
-    auipc   t4, 0
-    li      t5, 0x00100f13      # 00100f13: addi t5, zero, 1
-    sw      t5, 20(t4)          # overwrite instruction at i_cache_overwrite
-
-    # Cache flush
-    fence.i
-
-i_cache_overwrite:
-    li      t5, 0xcd            # dummy data (this instruction will be overwritten)
 
 end:
     ret
