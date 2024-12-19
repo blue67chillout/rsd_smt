@@ -330,10 +330,6 @@ test-riscv-compliance: $(RISCV_RV32I_COMPLIANCE_TEST_TARGETS)
     fadd_b2-01 \
     fadd_b4-01 \
     fadd_b5-01 \
-    fdiv_b4-01 \
-    fdiv_b5-01 \
-    fdiv_b6-01 \
-    fdiv_b7-01 \
     fmadd_b4-01 \
     fmadd_b5-01 \
     fmadd_b6-01 \
@@ -354,11 +350,6 @@ test-riscv-compliance: $(RISCV_RV32I_COMPLIANCE_TEST_TARGETS)
     fnmsub_b5-01 \
     fnmsub_b6-01 \
     fnmsub_b7-01 \
-    fsqrt_b3-01 \
-    fsqrt_b4-01 \
-    fsqrt_b5-01 \
-    fsqrt_b7-01 \
-    fsqrt_b8-01 \
     fsub_b4-01 \
     fsub_b5-01 \
     fsub_b7-01 \
@@ -368,9 +359,6 @@ test-riscv-compliance: $(RISCV_RV32I_COMPLIANCE_TEST_TARGETS)
     fadd_b10-01 \
     fadd_b12-01 \
     fadd_b13-01 \
-    fdiv_b1-01 \
-    fdiv_b2-01 \
-    fdiv_b20-01 \
     fmadd_b14-01 \
     fmadd_b16-01 \
     fmadd_b17-01 \
@@ -393,10 +381,6 @@ test-riscv-compliance: $(RISCV_RV32I_COMPLIANCE_TEST_TARGETS)
     fnmsub_b17-01 \
     fnmsub_b18-01 \
     fnmsub_b2-01 \
-    fsqrt_b1-01 \
-    fsqrt_b2-01 \
-    fsqrt_b20-01 \
-    fsqrt_b9-01 \
     fsub_b1-01 \
     fsub_b10-01 \
     fsub_b12-01 \
@@ -442,6 +426,22 @@ RISCV_RV32F_COMPLIANCE_TESTS =    \
   fsgnjn_b1-01 \
   fsgnjx_b1-01 \
   fsw-align-01 \
+  fdiv_b1-01 \
+  fdiv_b2-01 \
+  fdiv_b4-01 \
+  fdiv_b5-01 \
+  fdiv_b6-01 \
+  fdiv_b7-01 \
+  fdiv_b20-01 \
+  fsqrt_b1-01 \
+  fsqrt_b2-01 \
+  fsqrt_b20-01 \
+  fsqrt_b9-01 \
+  fsqrt_b3-01 \
+  fsqrt_b4-01 \
+  fsqrt_b5-01 \
+  fsqrt_b7-01 \
+  fsqrt_b8-01 \
 
 RISCV_RV32F_COMPLIANCE_TEST_TARGETS = $(RISCV_RV32F_COMPLIANCE_TESTS:%=test-riscv-compliance-%)
 

@@ -3,9 +3,9 @@ import FPUTypes::*;
 module FP32DivSqrter (
 input
     logic clk, rst,
-    logic [31:0] lhs,
-    logic [31:0] rhs,
-    logic is_divide,
+    logic [31:0] input_lhs,
+    logic [31:0] input_rhs,
+    logic input_is_divide,
     logic req,
 output
     logic finished,
@@ -43,11 +43,11 @@ output
     FDivSqrtRegPath regData, nextData;
     logic [31:0] regResult, nextResult;
 
-    wire       lhs_sign = lhs[31];
+    wire       lhs_sign = input_lhs[31];
     wire       rhs_sign = rhs[31];
-    wire [7:0] lhs_expo = lhs[30:23];
+    wire [7:0] lhs_expo = input_lhs[30:23];
     wire [7:0] rhs_expo = rhs[30:23];
-    wire[22:0] lhs_mant = lhs[22:0];
+    wire[22:0] lhs_mant = input_lhs[22:0];
     wire[22:0] rhs_mant = rhs[22:0];
 
     // NaN handling
@@ -57,15 +57,15 @@ output
     wire rhs_is_inf  = rhs_expo == 8'hff & rhs_mant == 0;
     wire lhs_is_nan  = lhs_expo == 8'hff & lhs_mant != 0;
     wire rhs_is_nan  = rhs_expo == 8'hff & rhs_mant != 0;
-    wire lhs_is_neg  = lhs_sign & lhs != 32'h80000000;
-    wire res_is_nan  = is_divide ? lhs_is_nan | rhs_is_nan | (lhs_is_zero & rhs_is_zero) | (lhs_is_inf & rhs_is_inf)
+    wire lhs_is_neg  = lhs_sign & input_lhs != 32'h80000000;
+    wire res_is_nan  = input_is_divide ? lhs_is_nan | rhs_is_nan | (lhs_is_zero & rhs_is_zero) | (lhs_is_inf & rhs_is_inf)
                                  : lhs_is_nan | lhs_is_neg;
-    //wire[31:0]  nan  = is_divide ? lhs_is_nan ? lhs | 32'h00400000 : rhs_is_nan ? rhs | 32'h00400000 : 32'hffc00000
-    //                             : lhs_is_nan ? lhs | 32'h00400000 : 32'hffc00000; // qNaN
+    //wire[31:0]  nan  = is_divide ? lhs_is_nan ? input_lhs | 32'h00400000 : rhs_is_nan ? rhs | 32'h00400000 : 32'hffc00000
+    //                             : lhs_is_nan ? input_lhs | 32'h00400000 : 32'hffc00000; // qNaN
     wire[31:0]   nan = 32'h7fc00000;
 
     // Preparation
-    wire       result_sign  = is_divide & (lhs_sign ^ rhs_sign);
+    wire       result_sign  = input_is_divide & (lhs_sign ^ rhs_sign);
     wire [9:0] v_lhs_expo   = lhs_expo == 0 ? -leading_zeros_count(lhs_mant) : { 2'b0, lhs_expo }; // virtual exponent (ignores subnormals, but is biased)
     wire [9:0] v_rhs_expo   = rhs_expo == 0 ? -leading_zeros_count(rhs_mant) : { 2'b0, rhs_expo }; // virtual exponent (ignores subnormals, but is biased)
     wire[23:0] v_lhs_mant = lhs_expo == 0 ? { lhs_mant, 1'b0 } << leading_zeros_count(lhs_mant) : { 1'b1, lhs_mant };
@@ -146,10 +146,10 @@ output
             nextData.v_rhs_mant = v_rhs_mant;
             nextData.result_sign = result_sign;
             nextData.lhs_sign = lhs_sign;
-            nextData.is_divide = is_divide;
+            nextData.is_divide = input_is_divide;
             nextData.res_is_nan = res_is_nan;
-            nextData.res_is_inf = is_divide ? (lhs_is_inf | rhs_is_zero) : (!lhs_sign & lhs_is_inf);
-            nextData.res_is_zero = is_divide ? (lhs_is_zero | rhs_is_inf) : lhs_is_zero;
+            nextData.res_is_inf = input_is_divide ? (lhs_is_inf | rhs_is_zero) : (!lhs_sign & lhs_is_inf);
+            nextData.res_is_zero = input_is_divide ? (lhs_is_zero | rhs_is_inf) : lhs_is_zero;
             nextData.nan = nan;
             nextPhase = PHASE_PREPARATION;
         end

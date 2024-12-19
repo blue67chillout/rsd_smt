@@ -116,6 +116,7 @@ CORE_MODULES = \
 	FloatingPointUnit/FP32PipelinedFMA.sv \
 	FloatingPointUnit/FP32PipelinedOther.sv \
 	FloatingPointUnit/FP32DivSqrter.sv \
+	FloatingPointUnit/FP32DivSqrterWithFFlags.sv \
 	FloatingPointUnit/FPDivSqrtUnit.sv \
 	FloatingPointUnit/FPDivSqrtUnitIF.sv \
 	RenameLogic/RenameLogic.sv \
