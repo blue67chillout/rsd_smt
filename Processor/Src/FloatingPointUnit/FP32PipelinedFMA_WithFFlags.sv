@@ -271,10 +271,6 @@ module FMA_WithFFlagsStage4(
                                                                                 : addend;
     wire[31:0] huge             = huge_is_inf ? { result_sign, 8'hff, 23'h0 } : { result_sign, 8'hfe, 23'h7fffff };
     wire[31:0] tiny             = dir_is_away ? { result_sign, 8'h00, 23'h1 } : { result_sign, 8'h00, 23'h0 };
-    
-    wire [7:0] addend_expo = addend[30:23];
-    wire[22:0] addend_mant = addend[22:0];
-    wire addend_is_zero         = addend_expo == 8'h00 & addend_mant == 0;
     wire[31:0] zero             = { is_fmul ? result_sign : (is_subtract ? round_mode == 2 : addend_sign), 8'h00, 23'h0 };
 
     // Final result
