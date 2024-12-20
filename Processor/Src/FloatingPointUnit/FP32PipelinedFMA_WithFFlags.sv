@@ -101,7 +101,6 @@ module FMA_WithFFlagsStage0(
     wire res_is_inf = addend_is_inf | mullhs_is_inf | mulrhs_is_inf;
     wire mul_sign       = mullhs_sign ^ mulrhs_sign;
     wire inf_sign   = addend_is_inf ? addend_sign : mul_sign;
-    wire[31:0] inf  = { inf_sign, 8'hff, 23'h0 };
 
     // Main path (including subnormal handling)
     wire [9:0] v_mullhs_expo  = { 2'b0, mullhs_expo == 8'h00 ? 8'h01 : mullhs_expo };
@@ -126,7 +125,7 @@ module FMA_WithFFlagsStage0(
     assign mrhs    = { 52'b0, v_mulrhs_mant, 1'b0 };
     assign maddend = { 1'b0, shifted_addend, addend_sticky };
     assign stg0Out = {v_fmares_expo, res_is_inf, result_is_nan,
-                      res_is_addend, mul_sign, inf_sign, addend_sign, is_subtract, inf, nan, addend,
+                      res_is_addend, mul_sign, inf_sign, addend_sign, is_subtract, nan, addend,
                       mulres_is_tiny, res_is_tiny, invalid_operation, round_mode};
 endmodule
 
@@ -161,7 +160,7 @@ module FMA_WithFFlagsStage2(
     
     assign stg2Out = {abs_fma_result, pipeReg.mulres_expo, pipeReg.result_is_inf,
                       pipeReg.result_is_nan, res_is_zero, pipeReg.res_is_addend, result_sign,
-                      pipeReg.prop_inf_sign, pipeReg.addend_sign, pipeReg.is_subtract, pipeReg.inf, pipeReg.nan, pipeReg.addend,
+                      pipeReg.prop_inf_sign, pipeReg.addend_sign, pipeReg.is_subtract, pipeReg.nan, pipeReg.addend,
                       pipeReg.mulres_is_tiny, pipeReg.res_is_tiny, pipeReg.invalid_operation, pipeReg.round_mode};
 endmodule
 
@@ -191,7 +190,7 @@ module FMA_WithFFlagsStage3(
     
     assign stg3Out = {abs_fma_result, fmares_shift, virtual_expo, subnormal, pipeReg.result_is_inf,
                       pipeReg.result_is_nan, pipeReg.res_is_zero, pipeReg.res_is_addend, pipeReg.result_sign,
-                      pipeReg.prop_inf_sign, pipeReg.addend_sign, pipeReg.is_subtract, pipeReg.inf, pipeReg.nan, pipeReg.addend,
+                      pipeReg.prop_inf_sign, pipeReg.addend_sign, pipeReg.is_subtract, pipeReg.nan, pipeReg.addend,
                       pipeReg.mulres_is_tiny, pipeReg.res_is_tiny, pipeReg.invalid_operation, pipeReg.round_mode};
 endmodule
 
@@ -225,7 +224,6 @@ module FMA_WithFFlagsStage4(
     wire[75:0] abs_fma_result  = pipeReg.abs_fma_result;
     wire [7:0] fmares_shift    = pipeReg.fmares_shift;
     wire [9:0] virtual_expo    = pipeReg.virtual_expo;
-    wire[31:0] inf             = pipeReg.inf;
     wire[31:0] nan             = pipeReg.nan;
     wire[31:0] addend          = pipeReg.addend;
     wire result_is_inf         = pipeReg.result_is_inf;
@@ -269,6 +267,7 @@ module FMA_WithFFlagsStage4(
     wire[31:0] huge             = huge_is_inf ? { result_sign, 8'hff, 23'h0 } : { result_sign, 8'hfe, 23'h7fffff };
     wire[31:0] tiny             = dir_is_away ? { result_sign, 8'h00, 23'h1 } : { result_sign, 8'h00, 23'h0 };
     wire[31:0] zero             = { is_subtract ? round_mode == 2 : addend_sign, 8'h00, 23'h0 };
+    wire[31:0] inf  = { prop_inf_sign, 8'hff, 23'h0 };
 
     // Final result
     assign result = result_is_nan  ? nan              :

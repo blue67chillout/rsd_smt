@@ -182,7 +182,6 @@ typedef struct packed {
     logic prop_inf_sign;
     logic addend_sign;
     logic is_subtract;
-    logic [31:0] inf;
     logic [31:0] nan;
     logic [31:0] addend;
     logic mulres_is_tiny;
@@ -200,7 +199,6 @@ typedef struct packed {
     logic prop_inf_sign;
     logic addend_sign;
     logic is_subtract;
-    logic [31:0] inf;
     logic [31:0] nan;
     logic [31:0] addend;
     logic mulres_is_tiny;
@@ -220,7 +218,6 @@ typedef struct packed {
     logic prop_inf_sign;
     logic addend_sign;
     logic is_subtract;
-    logic [31:0] inf;
     logic [31:0] nan;
     logic [31:0] addend;
     logic mulres_is_tiny;
@@ -242,7 +239,6 @@ typedef struct packed {
     logic prop_inf_sign;
     logic addend_sign;
     logic is_subtract;
-    logic [31:0] inf;
     logic [31:0] nan;
     logic [31:0] addend;
     logic mulres_is_tiny;
