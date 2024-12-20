@@ -44,11 +44,11 @@ output
     logic [31:0] regResult, nextResult;
 
     wire       lhs_sign = input_lhs[31];
-    wire       rhs_sign = rhs[31];
+    wire       rhs_sign = input_rhs[31];
     wire [7:0] lhs_expo = input_lhs[30:23];
-    wire [7:0] rhs_expo = rhs[30:23];
+    wire [7:0] rhs_expo = input_rhs[30:23];
     wire[22:0] lhs_mant = input_lhs[22:0];
-    wire[22:0] rhs_mant = rhs[22:0];
+    wire[22:0] rhs_mant = input_rhs[22:0];
 
     // NaN handling
     wire lhs_is_zero = lhs_expo == 8'h00 & lhs_mant == 0;
