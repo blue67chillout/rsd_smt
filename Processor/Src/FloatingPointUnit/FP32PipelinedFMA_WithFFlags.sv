@@ -7,7 +7,6 @@ input
     logic [31:0] mulrhs,
     logic [31:0] addend, 
     logic [2:0] round_mode,
-    logic is_fmul,
 output
     logic [31:0] result,
     logic [4:0] fflags
@@ -33,7 +32,7 @@ output
                                   : multiplier_lhs * multiplier_rhs + multiplier_addend;
     end
 
-    FMA_WithFFlagsStage0 stg0(clk, stg0Out, mullhs, mulrhs, addend, round_mode, is_fmul, is_sub, mlhs, mrhs, maddend);
+    FMA_WithFFlagsStage0 stg0(clk, stg0Out, mullhs, mulrhs, addend, round_mode, is_sub, mlhs, mrhs, maddend);
     FMA_WithFFlagsStage1 stg1(clk, stg0Out, stg1Out);
     FMA_WithFFlagsStage2 stg2(clk, stg1Out, stg2Out, fma_result);
     FMA_WithFFlagsStage3 stg3(clk, stg2Out, stg3Out);
@@ -47,7 +46,6 @@ module FMA_WithFFlagsStage0(
     input logic [31:0] mulrhs,
     input logic [31:0] addend,
     input logic [2:0] round_mode,
-    input logic is_fmul,
     output logic is_subtract,
     output logic [76:0] mlhs,
     output logic [76:0] mrhs,
@@ -129,7 +127,7 @@ module FMA_WithFFlagsStage0(
     assign maddend = { 1'b0, shifted_addend, addend_sticky };
     assign stg0Out = {v_fmares_expo, res_is_inf, result_is_nan,
                       res_is_addend, mul_sign, inf_sign, addend_sign, is_subtract, inf, nan, addend,
-                      mulres_is_tiny, res_is_tiny, invalid_operation, round_mode, is_fmul};
+                      mulres_is_tiny, res_is_tiny, invalid_operation, round_mode};
 endmodule
 
 module FMA_WithFFlagsStage1(
@@ -164,7 +162,7 @@ module FMA_WithFFlagsStage2(
     assign stg2Out = {abs_fma_result, pipeReg.mulres_expo, pipeReg.result_is_inf,
                       pipeReg.result_is_nan, res_is_zero, pipeReg.res_is_addend, result_sign,
                       pipeReg.prop_inf_sign, pipeReg.addend_sign, pipeReg.is_subtract, pipeReg.inf, pipeReg.nan, pipeReg.addend,
-                      pipeReg.mulres_is_tiny, pipeReg.res_is_tiny, pipeReg.invalid_operation, pipeReg.round_mode, pipeReg.is_fmul};
+                      pipeReg.mulres_is_tiny, pipeReg.res_is_tiny, pipeReg.invalid_operation, pipeReg.round_mode};
 endmodule
 
 module FMA_WithFFlagsStage3(
@@ -194,7 +192,7 @@ module FMA_WithFFlagsStage3(
     assign stg3Out = {abs_fma_result, fmares_shift, virtual_expo, subnormal, pipeReg.result_is_inf,
                       pipeReg.result_is_nan, pipeReg.res_is_zero, pipeReg.res_is_addend, pipeReg.result_sign,
                       pipeReg.prop_inf_sign, pipeReg.addend_sign, pipeReg.is_subtract, pipeReg.inf, pipeReg.nan, pipeReg.addend,
-                      pipeReg.mulres_is_tiny, pipeReg.res_is_tiny, pipeReg.invalid_operation, pipeReg.round_mode, pipeReg.is_fmul};
+                      pipeReg.mulres_is_tiny, pipeReg.res_is_tiny, pipeReg.invalid_operation, pipeReg.round_mode};
 endmodule
 
 module FMA_WithFFlagsStage4(
@@ -243,7 +241,6 @@ module FMA_WithFFlagsStage4(
     wire res_is_tiny           = pipeReg.res_is_tiny;
     wire invalid_operation     = pipeReg.invalid_operation;
     wire [2:0] round_mode      = pipeReg.round_mode;
-    wire is_fmul               = pipeReg.is_fmul;
 
     // Normalize and rounding decision
     wire[24:0] shifter_result  = { abs_fma_result, 24'b0 } >> (7'd75 - fmares_shift); // [75:0] -> [24:0] normalizing left shift emulation. The 24'b0 is needed for cases where large cancellations occur. [24:0] = { mantissa(23bit), guard(1bit), extra_guard_for_underflow_detection(1bit) }
@@ -271,7 +268,7 @@ module FMA_WithFFlagsStage4(
                                                                                 : addend;
     wire[31:0] huge             = huge_is_inf ? { result_sign, 8'hff, 23'h0 } : { result_sign, 8'hfe, 23'h7fffff };
     wire[31:0] tiny             = dir_is_away ? { result_sign, 8'h00, 23'h1 } : { result_sign, 8'h00, 23'h0 };
-    wire[31:0] zero             = { is_fmul ? result_sign : (is_subtract ? round_mode == 2 : addend_sign), 8'h00, 23'h0 };
+    wire[31:0] zero             = { is_subtract ? round_mode == 2 : addend_sign, 8'h00, 23'h0 };
 
     // Final result
     assign result = result_is_nan  ? nan              :

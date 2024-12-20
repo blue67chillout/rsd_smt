@@ -154,7 +154,6 @@ module FPExecutionStage(
             .mulrhs (fmaMulRHS[i]),
             .addend (fmaAddend[i]),
             .round_mode (rm[i]),
-            .is_fmul (fpuCode[i] == FC_MUL),
             .result ( fmaDataOut[i] ),
             .fflags ( fmaFFlagsOut[i])
         );
@@ -178,7 +177,7 @@ module FPExecutionStage(
             fmaMulLHS[i] = fpuCode[i] inside {FC_FNMSUB, FC_FNMADD} ? {~fuOpA[i].data[31], fuOpA[i].data[30:0]} : fuOpA[i].data;
             fmaMulRHS[i] = fpuCode[i] inside {FC_ADD, FC_SUB} ? 32'h3f800000 : fuOpB[i].data;
             if(fpuCode[i] == FC_MUL) begin
-                fmaAddend[i] = 32'h00000000;
+                fmaAddend[i] = { fmaMulLHS[i][31] ^ fmaMulRHS[i][31] , 31'h0 };
             end
             else if (fpuCode[i] == FC_ADD) begin
                 fmaAddend[i] = fuOpB[i].data;
@@ -291,7 +290,6 @@ module FPExecutionStage(
             //
             dataOut[i].valid
                 = localPipeReg[i][FP_EXEC_STAGE_DEPTH-2].regValid;
-            // TODO fflagsをちゃんと実装
             unique case ( localPipeReg[i][FP_EXEC_STAGE_DEPTH-2].fpQueueData.fpOpInfo.opType )
                 FP_MOP_TYPE_ADD, FP_MOP_TYPE_MUL, FP_MOP_TYPE_FMA: begin
                     dataOut[i].data = fmaDataOut[i];
@@ -378,7 +376,6 @@ module FPExecutionStage(
 
             nextStage[i].fpQueueData
                 = localPipeReg[i][FP_EXEC_STAGE_DEPTH-2].fpQueueData;
-            // TODO implment fflags
             nextStage[i].fflagsOut = fflagsOut[i];
 
             // リセットorフラッシュ時はNOP

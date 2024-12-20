@@ -189,7 +189,6 @@ typedef struct packed {
     logic res_is_tiny;
     logic invalid_operation;
     logic [2:0] round_mode;
-    logic is_fmul;
 } FMA_WithFFlagsStage1RegPath;
 
 typedef struct packed {
@@ -208,7 +207,6 @@ typedef struct packed {
     logic res_is_tiny;
     logic invalid_operation;
     logic [2:0] round_mode;
-    logic is_fmul;
 } FMA_WithFFlagsStage2RegPath;
 
 typedef struct packed {
@@ -229,7 +227,6 @@ typedef struct packed {
     logic res_is_tiny;
     logic invalid_operation;
     logic [2:0] round_mode;
-    logic is_fmul;
 } FMA_WithFFlagsStage3RegPath;
 
 typedef struct packed {
@@ -252,7 +249,6 @@ typedef struct packed {
     logic res_is_tiny;
     logic invalid_operation;
     logic [2:0] round_mode;
-    logic is_fmul;
 } FMA_WithFFlagsStage4RegPath;
 
 endpackage
