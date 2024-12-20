@@ -96,8 +96,8 @@ output
     wire[23:0] v_rhs_mant_w = rhs_expo == 0 ? { rhs_mant, 1'b0 } << leading_zeros_count(rhs_mant) : { 1'b1, rhs_mant };
     reg [23:0] v_lhs_mant, v_rhs_mant;
     wire dividend_normalize = v_lhs_mant < v_rhs_mant;
-    wire [9:0] virtual_expo = v_lhs_expo - v_rhs_expo + 127 - { 8'h0, dividend_normalize }; // new biased virtual exponent (ignores subnormals)
-    wire       subnormal    = is_divide & $signed(virtual_expo) <= 0;
+    wire [9:0] virtual_expo_w = v_lhs_expo - v_rhs_expo + 127 - { 8'h0, dividend_normalize }; // new biased virtual exponent (ignores subnormals)
+    wire       subnormal_w  = is_divide & $signed(virtual_expo_w) <= 0;
 
     // The SRT loop. rem needs 27 bits. 24(mantissa)+2(x8/3,SRT)+1(sign)
     wire[26:0] rem_0 = is_divide ? dividend_normalize ? { 2'b00, v_lhs_mant, 1'b0 } : { 3'b000, v_lhs_mant }
@@ -108,6 +108,8 @@ output
     reg  [3:0] stage;
     reg [26:0] rem;
     reg [25:0] quo;
+    reg  [9:0] virtual_expo;
+    reg        subnormal;
     always@(posedge clk) begin
         if (rst) begin
             lhs <= '0;
@@ -134,6 +136,8 @@ output
             rem <= rem_0;
             quo <= quo_0;
             stage <= is_divide ? 0 : 1;
+            virtual_expo <= virtual_expo_w;
+            subnormal <= subnormal_w;
         end else begin
             reg[3:0] div = is_divide ? { 1'b0, v_rhs_mant[22:20] }
                                      : { quo[25], quo[23:21] };
