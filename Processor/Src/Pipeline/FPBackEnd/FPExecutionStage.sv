@@ -148,14 +148,15 @@ module FPExecutionStage(
     logic isDivSqrt         [ FP_ISSUE_WIDTH ]; 
 
     for ( genvar i = 0; i < FP_ISSUE_WIDTH; i++ ) begin
-        FP32PipelinedFMA fpFMA (
+        FP32PipelinedFMA_WithFFlags fpFMA (
             .clk (port.clk),
             .mullhs (fmaMulLHS[i]),
             .mulrhs (fmaMulRHS[i]),
             .addend (fmaAddend[i]),
-            //.rm (rm[i]),
-            .result ( fmaDataOut[i] )
-            //.fflags ( fmaFFlagsOut[i])
+            .round_mode (rm[i]),
+            .is_fmul (fpuCode[i] == FC_MUL),
+            .result ( fmaDataOut[i] ),
+            .fflags ( fmaFFlagsOut[i])
         );
         
         FP32PipelinedOther #(
@@ -294,8 +295,7 @@ module FPExecutionStage(
             unique case ( localPipeReg[i][FP_EXEC_STAGE_DEPTH-2].fpQueueData.fpOpInfo.opType )
                 FP_MOP_TYPE_ADD, FP_MOP_TYPE_MUL, FP_MOP_TYPE_FMA: begin
                     dataOut[i].data = fmaDataOut[i];
-                    //fflagsData[i] = fmaFFlagsOut[i];
-                    fflagsOut[i] = '0;
+                    fflagsOut[i] = fmaFFlagsOut[i];
                 end
                 FP_MOP_TYPE_DIV, FP_MOP_TYPE_SQRT: begin
                     dataOut[i].data = fpDivSqrtUnit.DataOut[i];

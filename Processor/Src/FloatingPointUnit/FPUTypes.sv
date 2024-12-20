@@ -120,8 +120,14 @@ typedef struct packed {
     logic prop_inf_sign;
     logic addend_sign;
     logic is_subtract;
+    logic [31:0] inf;
     logic [31:0] nan;
     logic [31:0] addend;
+    logic mulres_is_tiny;
+    logic res_is_tiny;
+    logic invalid_operation;
+    logic [2:0] round_mode;
+    logic is_fmul;
 } FMAStage1RegPath;
 
 typedef struct packed {
@@ -133,8 +139,14 @@ typedef struct packed {
     logic prop_inf_sign;
     logic addend_sign;
     logic is_subtract;
+    logic [31:0] inf;
     logic [31:0] nan;
     logic [31:0] addend;
+    logic mulres_is_tiny;
+    logic res_is_tiny;
+    logic invalid_operation;
+    logic [2:0] round_mode;
+    logic is_fmul;
 } FMAStage2RegPath;
 
 typedef struct packed {
@@ -149,13 +161,20 @@ typedef struct packed {
     logic prop_inf_sign;
     logic addend_sign;
     logic is_subtract;
+    logic [31:0] inf;
     logic [31:0] nan;
     logic [31:0] addend;
+    logic mul_sign;
+    logic mulres_is_tiny;
+    logic res_is_tiny;
+    logic invalid_operation;
+    logic [2:0] round_mode;
+    logic is_fmul;
 } FMAStage3RegPath;
 
 typedef struct packed {
     logic [75:0] abs_fma_result;
-    logic [7:0] fmares_shift;
+    logic [6:0] fmares_shift;
     logic [9:0] virtual_expo;
     logic subnormal;
     logic res_is_negative;
@@ -167,8 +186,15 @@ typedef struct packed {
     logic prop_inf_sign;
     logic addend_sign;
     logic is_subtract;
+    logic [31:0] inf;
     logic [31:0] nan;
     logic [31:0] addend;
+    logic mul_sign;
+    logic mulres_is_tiny;
+    logic res_is_tiny;
+    logic invalid_operation;
+    logic [2:0] round_mode;
+    logic is_fmul;
 } FMAStage4RegPath;
 
 endpackage
