@@ -13,10 +13,10 @@ output
     logic [4:0] fflags
 );
 
-    FMAStage1RegPath stg0Out;
-    FMAStage2RegPath stg1Out;
-    FMAStage3RegPath stg2Out;
-    FMAStage4RegPath stg3Out;
+    FMA_WithFFlagsStage1RegPath stg0Out;
+    FMA_WithFFlagsStage2RegPath stg1Out;
+    FMA_WithFFlagsStage3RegPath stg2Out;
+    FMA_WithFFlagsStage4RegPath stg3Out;
     
     // Fused-multiply-adder (24bit*24bit<<3+76bit+sign)
     // The multiplication result is shifted by 2 bits for the guard bit and the sticky bit.
@@ -38,15 +38,11 @@ output
     FMA_WithFFlagsStage2 stg2(clk, stg1Out, stg2Out, fma_result);
     FMA_WithFFlagsStage3 stg3(clk, stg2Out, stg3Out);
     FMA_WithFFlagsStage4 stg4(clk, stg3Out, result, fflags);
-
-    logic [31:0] ref_result;
-    logic [4:0] ref_fflags;
-    float_fused_multiply_adder fma(mullhs, mulrhs, addend, round_mode, ref_result, ref_fflags);
 endmodule
 
 module FMA_WithFFlagsStage0(
     input logic clk,
-    output FMAStage1RegPath stg0Out,
+    output FMA_WithFFlagsStage1RegPath stg0Out,
     input logic [31:0] mullhs,
     input logic [31:0] mulrhs,
     input logic [31:0] addend,
@@ -124,16 +120,13 @@ module FMA_WithFFlagsStage0(
     // Special cases
     wire       mulres_is_tiny   = $signed(addend_shift) < 0 & !mulres_is_zero & !addend_is_zero; // |mullhs*mulrhs| < 0.5ULP(|addend|-eps)
     wire       res_is_tiny      = $signed(addend_shift) < 0 & !mulres_is_zero & addend_is_zero; // |mullhs*mulrhs+addend| < 0.5FLT_TRUE_MIN
-  
+
     // Fused-multiply-adder (24bit*24bit<<3+76bit+sign)
     // The multiplication result is shifted by 3 bits for the guard bit, the round bit, and the sticky bit.
     // The adder is sufficient for 76 bits + 1 sign bit because |lhs*rhs<<3| < 2^51 is <0.5 ULP when subtracted from 2^76. Note: ULP(1-eps) = 2^-24 while ULP(1+eps) = 2^-23.
     assign mlhs    = { 51'b0, v_mullhs_mant, 2'b0 };
     assign mrhs    = { 52'b0, v_mulrhs_mant, 1'b0 };
     assign maddend = { 1'b0, shifted_addend, addend_sticky };
-    // wire[76:0] multiplier_result = is_subtract ? multiplier_lhs * multiplier_rhs - multiplier_addend
-    //                                            : multiplier_lhs * multiplier_rhs + multiplier_addend;
-
     assign stg0Out = {v_fmares_expo, res_is_inf, result_is_nan,
                       res_is_addend, mul_sign, inf_sign, addend_sign, is_subtract, inf, nan, addend,
                       mulres_is_tiny, res_is_tiny, invalid_operation, round_mode, is_fmul};
@@ -141,10 +134,10 @@ endmodule
 
 module FMA_WithFFlagsStage1(
     input logic clk,
-    input FMAStage1RegPath stg1In,
-    output FMAStage2RegPath stg1Out
+    input FMA_WithFFlagsStage1RegPath stg1In,
+    output FMA_WithFFlagsStage2RegPath stg1Out
 );
-    FMAStage1RegPath pipeReg;
+    FMA_WithFFlagsStage1RegPath pipeReg;
     always_ff @(posedge clk) begin
         pipeReg <= stg1In; 
     end
@@ -153,11 +146,11 @@ endmodule
 
 module FMA_WithFFlagsStage2(
     input logic clk,
-    input FMAStage2RegPath stg2In,
-    output FMAStage3RegPath stg2Out,
+    input FMA_WithFFlagsStage2RegPath stg2In,
+    output FMA_WithFFlagsStage3RegPath stg2Out,
     input logic [76:0] fma_result
 );
-    FMAStage2RegPath pipeReg;
+    FMA_WithFFlagsStage2RegPath pipeReg;
     always_ff @(posedge clk) begin
         pipeReg <= stg2In; 
     end
@@ -168,16 +161,16 @@ module FMA_WithFFlagsStage2(
     wire[75:0] abs_fma_result  = res_is_negative ? -fma_result[75:0] : fma_result[75:0];
     wire       result_sign     = mul_sign ^ res_is_negative;
     
-    assign stg2Out = {abs_fma_result, pipeReg.mulres_expo, res_is_negative, pipeReg.result_is_inf,
+    assign stg2Out = {abs_fma_result, pipeReg.mulres_expo, pipeReg.result_is_inf,
                       pipeReg.result_is_nan, res_is_zero, pipeReg.res_is_addend, result_sign,
                       pipeReg.prop_inf_sign, pipeReg.addend_sign, pipeReg.is_subtract, pipeReg.inf, pipeReg.nan, pipeReg.addend,
-                      pipeReg.mul_sign, pipeReg.mulres_is_tiny, pipeReg.res_is_tiny, pipeReg.invalid_operation, pipeReg.round_mode, pipeReg.is_fmul};
+                      pipeReg.mulres_is_tiny, pipeReg.res_is_tiny, pipeReg.invalid_operation, pipeReg.round_mode, pipeReg.is_fmul};
 endmodule
 
 module FMA_WithFFlagsStage3(
     input logic clk,
-    input FMAStage3RegPath stg3In,
-    output FMAStage4RegPath stg3Out
+    input FMA_WithFFlagsStage3RegPath stg3In,
+    output FMA_WithFFlagsStage4RegPath stg3Out
 );
     function automatic [6:0] leading_zeros_count;
         input[75:0] x;
@@ -185,7 +178,7 @@ module FMA_WithFFlagsStage3(
             if(x[75-leading_zeros_count]) break;
     endfunction
     
-    FMAStage3RegPath pipeReg;
+    FMA_WithFFlagsStage3RegPath pipeReg;
     always_ff @(posedge clk) begin
         pipeReg <= stg3In; 
     end
@@ -198,15 +191,15 @@ module FMA_WithFFlagsStage3(
     wire [6:0] fmares_shift    = subnormal ? mulres_expo[6:0] // There are 3 bits below lhs*rhs<<3, and 23 bits will be lost due to rounding, assuming no carryover occurs in lhs*rhs.
                                            : leading_zeros + 1;   // (75 - addend_sticky(1bit)) - shifter_result(24bit)
     
-    assign stg3Out = {abs_fma_result, fmares_shift, virtual_expo, subnormal, pipeReg.res_is_negative, pipeReg.result_is_inf,
+    assign stg3Out = {abs_fma_result, fmares_shift, virtual_expo, subnormal, pipeReg.result_is_inf,
                       pipeReg.result_is_nan, pipeReg.res_is_zero, pipeReg.res_is_addend, pipeReg.result_sign,
                       pipeReg.prop_inf_sign, pipeReg.addend_sign, pipeReg.is_subtract, pipeReg.inf, pipeReg.nan, pipeReg.addend,
-                      pipeReg.mul_sign, pipeReg.mulres_is_tiny, pipeReg.res_is_tiny, pipeReg.invalid_operation, pipeReg.round_mode, pipeReg.is_fmul};
+                      pipeReg.mulres_is_tiny, pipeReg.res_is_tiny, pipeReg.invalid_operation, pipeReg.round_mode, pipeReg.is_fmul};
 endmodule
 
 module FMA_WithFFlagsStage4(
     input logic clk,
-    input FMAStage4RegPath stg4In,
+    input FMA_WithFFlagsStage4RegPath stg4In,
     output logic [31:0] result,
     output logic [4:0] fflags
 );
@@ -226,7 +219,7 @@ module FMA_WithFFlagsStage4(
         endcase
     endfunction
 
-    FMAStage4RegPath pipeReg;
+    FMA_WithFFlagsStage4RegPath pipeReg;
     always_ff @(posedge clk) begin
         pipeReg <= stg4In; 
     end
@@ -237,7 +230,6 @@ module FMA_WithFFlagsStage4(
     wire[31:0] inf             = pipeReg.inf;
     wire[31:0] nan             = pipeReg.nan;
     wire[31:0] addend          = pipeReg.addend;
-    wire res_is_negative       = pipeReg.res_is_negative;
     wire result_is_inf         = pipeReg.result_is_inf;
     wire result_is_nan         = pipeReg.result_is_nan;
     wire res_is_zero           = pipeReg.res_is_zero;
@@ -254,9 +246,7 @@ module FMA_WithFFlagsStage4(
     wire is_fmul               = pipeReg.is_fmul;
 
     // Normalize and rounding decision
-    /* verilator lint_off WIDTH */
     wire[24:0] shifter_result  = { abs_fma_result, 24'b0 } >> (7'd75 - fmares_shift); // [75:0] -> [24:0] normalizing left shift emulation. The 24'b0 is needed for cases where large cancellations occur. [24:0] = { mantissa(23bit), guard(1bit), extra_guard_for_underflow_detection(1bit) }
-    /* verilator lint_on WIDTH */
     wire       sticky          = abs_fma_result << (7'd25 + fmares_shift) != 0; // the part right-shifted out above
 
     wire       round_away      = round_to_away(result_sign, shifter_result[2], shifter_result[1], shifter_result[0] | sticky, round_mode);
@@ -269,12 +259,7 @@ module FMA_WithFFlagsStage4(
     wire [7:0] result_expo = (subnormal ? 8'h00 : virtual_expo[7:0]) + { 7'b0, exp_plus_one };
 
     // Special cases
-    // wire       mulres_is_zero   = mullhs_is_zero | mulrhs_is_zero;
     wire       res_is_huge      = $signed(virtual_expo) >= 255;
-    // wire       mulres_is_tiny   = $signed(addend_shift) < 0 & !mulres_is_zero & !addend_is_zero; // |mullhs*mulrhs| < 0.5ULP(|addend|-eps)
-    // wire       res_is_tiny      = $signed(addend_shift) < 0 & !mulres_is_zero & addend_is_zero; // |mullhs*mulrhs+addend| < 0.5FLT_TRUE_MIN
-    // wire       res_is_addend    = mulres_is_zero & !addend_is_zero;
-    // wire       res_is_zero      = multiplier_result == 77'h0; // including mulres_is_zero & addend_is_zero
     wire       dir_is_away      = (round_mode == 2 & result_sign) | (round_mode == 3 & !result_sign);
     wire       huge_is_inf      = round_mode == 0 | round_mode == 4 | dir_is_away;
 

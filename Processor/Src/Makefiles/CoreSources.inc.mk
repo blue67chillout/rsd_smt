@@ -114,6 +114,7 @@ CORE_MODULES = \
 	FloatingPointUnit/FP32PipelinedAdder.sv \
 	FloatingPointUnit/FP32PipelinedMultiplier.sv \
 	FloatingPointUnit/FP32PipelinedFMA.sv \
+	FloatingPointUnit/FP32PipelinedFMA_WithFFlags.sv \
 	FloatingPointUnit/FP32PipelinedOther.sv \
 	FloatingPointUnit/FP32DivSqrter.sv \
 	FloatingPointUnit/FP32DivSqrterWithFFlags.sv \
