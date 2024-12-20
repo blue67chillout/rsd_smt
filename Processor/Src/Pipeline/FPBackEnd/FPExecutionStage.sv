@@ -177,6 +177,10 @@ module FPExecutionStage(
             fmaMulLHS[i] = fpuCode[i] inside {FC_FNMSUB, FC_FNMADD} ? {~fuOpA[i].data[31], fuOpA[i].data[30:0]} : fuOpA[i].data;
             fmaMulRHS[i] = fpuCode[i] inside {FC_ADD, FC_SUB} ? 32'h3f800000 : fuOpB[i].data;
             if(fpuCode[i] == FC_MUL) begin
+                // Hack: set sign bit considering rounding mode
+                // +a * +0.0 should return +0.0 regardless of rounding mode,
+                // However, when implemented with fma(+a, +0.0, -0.0),
+                // it returns -0.0 when round_mode = 2
                 fmaAddend[i] = { fmaMulLHS[i][31] ^ fmaMulRHS[i][31] , 31'h0 };
             end
             else if (fpuCode[i] == FC_ADD) begin
