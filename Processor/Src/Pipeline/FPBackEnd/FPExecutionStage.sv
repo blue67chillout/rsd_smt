@@ -148,7 +148,7 @@ module FPExecutionStage(
     logic isDivSqrt         [ FP_ISSUE_WIDTH ]; 
 
     for ( genvar i = 0; i < FP_ISSUE_WIDTH; i++ ) begin
-        FP32PipelinedFMA_WithFFlags fpFMA (
+        FP32PipelinedFMA fpFMA (
             .clk (port.clk),
             .mullhs (fmaMulLHS[i]),
             .mulrhs (fmaMulRHS[i]),

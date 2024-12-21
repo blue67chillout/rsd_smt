@@ -111,7 +111,6 @@ typedef struct packed {
     logic [25:0] quo;
 } FDivSqrtRegPath;
 
-// Pipeline registers for old FMA
 typedef struct packed {
     logic [9:0] mulres_expo;
     logic result_is_inf;
@@ -123,6 +122,10 @@ typedef struct packed {
     logic is_subtract;
     logic [31:0] nan;
     logic [31:0] addend;
+    logic mulres_is_tiny;
+    logic res_is_tiny;
+    logic invalid_operation;
+    logic [2:0] round_mode;
 } FMAStage1RegPath;
 
 typedef struct packed {
@@ -136,12 +139,15 @@ typedef struct packed {
     logic is_subtract;
     logic [31:0] nan;
     logic [31:0] addend;
+    logic mulres_is_tiny;
+    logic res_is_tiny;
+    logic invalid_operation;
+    logic [2:0] round_mode;
 } FMAStage2RegPath;
 
 typedef struct packed {
     logic [75:0] abs_fma_result;
     logic [9:0] mulres_expo;
-    logic res_is_negative;
     logic result_is_inf;
     logic result_is_nan;
     logic res_is_zero;
@@ -152,79 +158,11 @@ typedef struct packed {
     logic is_subtract;
     logic [31:0] nan;
     logic [31:0] addend;
+    logic mulres_is_tiny;
+    logic res_is_tiny;
+    logic invalid_operation;
+    logic [2:0] round_mode;
 } FMAStage3RegPath;
-
-typedef struct packed {
-    logic [75:0] abs_fma_result;
-    logic [7:0] fmares_shift;
-    logic [9:0] virtual_expo;
-    logic subnormal;
-    logic res_is_negative;
-    logic result_is_inf;
-    logic result_is_nan;
-    logic res_is_zero;
-    logic res_is_addend;
-    logic result_sign;
-    logic prop_inf_sign;
-    logic addend_sign;
-    logic is_subtract;
-    logic [31:0] nan;
-    logic [31:0] addend;
-} FMAStage4RegPath;
-
-// Pipeline registers for FMA with fflags
-typedef struct packed {
-    logic [9:0] mulres_expo;
-    logic result_is_inf;
-    logic result_is_nan;
-    logic res_is_addend;
-    logic mul_sign;
-    logic prop_inf_sign;
-    logic addend_sign;
-    logic is_subtract;
-    logic [31:0] nan;
-    logic [31:0] addend;
-    logic mulres_is_tiny;
-    logic res_is_tiny;
-    logic invalid_operation;
-    logic [2:0] round_mode;
-} FMA_WithFFlagsStage1RegPath;
-
-typedef struct packed {
-    logic [9:0] mulres_expo;
-    logic result_is_inf;
-    logic result_is_nan;
-    logic res_is_addend;
-    logic mul_sign;
-    logic prop_inf_sign;
-    logic addend_sign;
-    logic is_subtract;
-    logic [31:0] nan;
-    logic [31:0] addend;
-    logic mulres_is_tiny;
-    logic res_is_tiny;
-    logic invalid_operation;
-    logic [2:0] round_mode;
-} FMA_WithFFlagsStage2RegPath;
-
-typedef struct packed {
-    logic [75:0] abs_fma_result;
-    logic [9:0] mulres_expo;
-    logic result_is_inf;
-    logic result_is_nan;
-    logic res_is_zero;
-    logic res_is_addend;
-    logic result_sign;
-    logic prop_inf_sign;
-    logic addend_sign;
-    logic is_subtract;
-    logic [31:0] nan;
-    logic [31:0] addend;
-    logic mulres_is_tiny;
-    logic res_is_tiny;
-    logic invalid_operation;
-    logic [2:0] round_mode;
-} FMA_WithFFlagsStage3RegPath;
 
 typedef struct packed {
     logic [75:0] abs_fma_result;
@@ -245,6 +183,6 @@ typedef struct packed {
     logic res_is_tiny;
     logic invalid_operation;
     logic [2:0] round_mode;
-} FMA_WithFFlagsStage4RegPath;
+} FMAStage4RegPath;
 
 endpackage
