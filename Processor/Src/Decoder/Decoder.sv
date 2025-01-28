@@ -735,7 +735,22 @@ function automatic void RISCV_EmitMemOp(
     opInfo.valid = TRUE;
 
     opInfo.unsupported = FALSE;
-    opInfo.undefined = FALSE;
+    if (isLoad) begin
+        opInfo.undefined = !(memFunct3 inside {
+            MEM_FUNCT3_SIGNED_BYTE,
+            MEM_FUNCT3_SIGNED_HALF_WORD,
+            MEM_FUNCT3_WORD,
+            MEM_FUNCT3_UNSIGNED_BYTE,
+            MEM_FUNCT3_UNSIGNED_HALF_WORD
+            });
+    end
+    else begin
+        opInfo.undefined = !(memFunct3 inside {
+            MEM_FUNCT3_SIGNED_BYTE,
+            MEM_FUNCT3_SIGNED_HALF_WORD,
+            MEM_FUNCT3_WORD
+        });
+    end 
 
     // Serialized
     opInfo.serialized = FALSE;
@@ -1268,7 +1283,7 @@ function automatic void RISCV_EmitFPMemOp(
     opInfo.valid = TRUE;
 
     opInfo.unsupported = FALSE;
-    opInfo.undefined = FALSE;
+    opInfo.undefined = memFunct3 != MEM_FUNCT3_WORD;
 
     // Serialized
     opInfo.serialized = FALSE;
@@ -1324,6 +1339,7 @@ function automatic void RISCV_EmitFPOp(
 
     FPU_Code fpuCode;
     Rounding_Mode rm;
+    logic undefined;
 
     isfR = isf;
     rv32fFunct3 = RV32FFunct3'(isfR.funct3);
@@ -1331,7 +1347,7 @@ function automatic void RISCV_EmitFPOp(
     fcvtfunct5  = FCVTFunct5'(isfR.rs2);
     rm = Rounding_Mode'(isfR.funct3);
 
-    RISCV_DecodeFPOpFunct3( fpuCode, rv32fFunct3, rv32fFunct7, fcvtfunct5);
+    RISCV_DecodeFPOpFunct3( fpuCode, undefined, rv32fFunct3, rv32fFunct7, fcvtfunct5);
     dstFP   = !(fpuCode inside {FC_FCVT_WS, FC_FCVT_WUS, FC_FMV_XW, FC_FEQ, FC_FLT, FC_FLE, FC_FCLASS});
     rs1FP   = !(fpuCode inside {FC_FCVT_SW, FC_FCVT_SWU, FC_FMV_WX});
     readrs2 = !(fpuCode inside {FC_SQRT, FC_FCVT_SW, FC_FCVT_SWU, FC_FCVT_WS, FC_FCVT_WUS, FC_FMV_WX, FC_FMV_XW, FC_FCLASS});
@@ -1374,7 +1390,7 @@ function automatic void RISCV_EmitFPOp(
 
     // 未定義命令
     opInfo.unsupported = FALSE;
-    opInfo.undefined = FALSE;
+    opInfo.undefined = undefined;
 
     // Serialized
     opInfo.serialized = FALSE;
@@ -1468,7 +1484,7 @@ function automatic void RISCV_EmitFPFMAOp(
 
     // 未定義命令
     opInfo.unsupported = FALSE;
-    opInfo.undefined = FALSE;
+    opInfo.undefined = isfR4.funct2 != '0;
 
     // Serialized
     opInfo.serialized = FALSE;
