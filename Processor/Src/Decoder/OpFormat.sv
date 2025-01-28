@@ -885,7 +885,7 @@ function automatic void RISCV_DecodeFPOpFunct3(
         RV32F_FUNCT7_FSQRT : begin
             fpuCode = FC_SQRT;
             undefined = !(rv32ffunct3 inside {RM_RNE, RM_RTZ, RM_RDN, RM_RUP, RM_RMM, RM_DYN})
-                            || (fcvtfunct5 != 0);
+                            || (fcvtfunct5 != FCVT_FUNCT5_SIGNED);
         end
         RV32F_FUNCT7_FSGNJ : begin
             //Todo: ここにfpTypeの代入かけるのか
