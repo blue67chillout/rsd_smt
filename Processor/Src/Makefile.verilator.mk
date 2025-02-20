@@ -37,7 +37,7 @@ DEPS_RTL = \
 	$(TYPES:%=$(SOURCE_ROOT)%) \
 	$(MODULES:%=$(SOURCE_ROOT)%) \
 	$(DEBUG_HELPERS:%=$(SOURCE_ROOT)%) \
-	# $(TEST_MODULES:%=$(SOURCE_ROOT)%) \
+	$(TEST_MODULES:%=$(SOURCE_ROOT)%) \
 
 # Temporally disabled warnings
 VERILATOR_DISABLED_WARNING = \

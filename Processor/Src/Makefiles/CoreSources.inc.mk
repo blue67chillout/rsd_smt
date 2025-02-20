@@ -188,7 +188,6 @@ MODULES = \
 	Memory/MemoryWriteDataQueue.sv \
 	Memory/MemoryLatencySimulator.sv \
 	$(CORE_MODULES) \
-	$(TEST_MODULES) \
 
 # Specify files with module definitions that are used only for testing and not used for synthesis.
 # TestMain depends on Dumper and should come later.
