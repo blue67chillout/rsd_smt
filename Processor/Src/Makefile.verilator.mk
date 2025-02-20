@@ -18,7 +18,7 @@ TOOLS_ROOT   = ../Tools/
 PROJECT_WORK =  ../Project/Verilator
 LIBRARY_WORK_RTL = $(PROJECT_WORK)/obj_dir
 
-TOP_MODULE = Main_Zynq_Wrapper
+TOP_MODULE = TestMain
 VERILATED_TOP_MODULE_NAME = V$(TOP_MODULE)
 
 # Convert a RSD log to a Kanata log.
@@ -44,6 +44,7 @@ VERILATOR_DISABLED_WARNING = \
      -Wno-WIDTH \
      -Wno-INITIALDLY \
      -Wno-UNOPTFLAT \
+	 -Wno-TIMESCALEMOD \
 
 # RSD specific constants
 # RSD_SRC_CFG is defined in Makefiles/CoreSources.inc.mk
@@ -59,17 +60,19 @@ RSD_VERILATOR_DEFINITION = \
 # See https://www.veripool.org/papers/Verilator_Accelerated_OSDA2020.pdf
 VERILATOR_OPTION = \
 	--cc \
+	--binary \
 	--assert \
 	-sv \
-	--exe ./SysDeps/Verilator/TestMain.cpp \
 	--top-module $(TOP_MODULE) \
 	$(VERILATOR_DISABLED_WARNING) \
 	$(RSD_VERILATOR_DEFINITION) \
 	--Mdir $(LIBRARY_WORK_RTL) \
 	+incdir+. \
 	--trace \
-	-CFLAGS "-Os -include limits" \
+	--trace-structs \
 	-output-split 15000 \
+	-j 0 \
+	#-CFLAGS "-Os -include limits" \
 	#-CFLAGS "-O0 -g" \
 	#--MMD \
 	#-O3 \
@@ -91,15 +94,15 @@ all: $(LIBRARY_WORK_RTL) $(DEPS_RTL) Makefiles/CoreSources.inc.mk
 
 run:
 	$(LIBRARY_WORK_RTL)/$(VERILATED_TOP_MODULE_NAME) \
-		MAX_TEST_CYCLES=$(MAX_TEST_CYCLES) \
-		TEST_CODE=$(TEST_CODE) ENABLE_PC_GOAL=$(ENABLE_PC_GOAL) SHOW_SERIAL_OUT=$(SHOW_SERIAL_OUT)
+		+MAX_TEST_CYCLES=$(MAX_TEST_CYCLES) \
+		+TEST_CODE=$(TEST_CODE) +ENABLE_PC_GOAL=$(ENABLE_PC_GOAL) +SHOW_SERIAL_OUT=$(SHOW_SERIAL_OUT)
 
 kanata:
 	$(LIBRARY_WORK_RTL)/$(VERILATED_TOP_MODULE_NAME) \
-		MAX_TEST_CYCLES=$(MAX_TEST_CYCLES) \
-		TEST_CODE=$(TEST_CODE) ENABLE_PC_GOAL=$(ENABLE_PC_GOAL) SHOW_SERIAL_OUT=$(SHOW_SERIAL_OUT) \
-		REG_CSV_FILE=Register.csv \
-		RSD_LOG_FILE=RSD.log 
+		+MAX_TEST_CYCLES=$(MAX_TEST_CYCLES) \
+		+TEST_CODE=$(TEST_CODE) +ENABLE_PC_GOAL=$(ENABLE_PC_GOAL) +SHOW_SERIAL_OUT=$(SHOW_SERIAL_OUT) \
+		+REG_CSV_FILE=Register.csv \
+		+RSD_LOG_FILE=RSD.log 
 	$(KANATA_CONVERTER) $(RSD_LOG_FILE_RTL) $(KANATA_LOG_FILE_RTL)
 
 
@@ -109,11 +112,11 @@ kanata:
 #
 dump:	
 	$(LIBRARY_WORK_RTL)/$(VERILATED_TOP_MODULE_NAME) \
-		MAX_TEST_CYCLES=$(MAX_TEST_CYCLES) \
-		TEST_CODE=$(TEST_CODE) ENABLE_PC_GOAL=$(ENABLE_PC_GOAL) SHOW_SERIAL_OUT=$(SHOW_SERIAL_OUT) \
-		REG_CSV_FILE=Register.csv \
-		RSD_LOG_FILE=RSD.log \
-		WAVE_LOG_FILE=simx.vcd
+		+MAX_TEST_CYCLES=$(MAX_TEST_CYCLES) \
+		+TEST_CODE=$(TEST_CODE) +ENABLE_PC_GOAL=$(ENABLE_PC_GOAL) +SHOW_SERIAL_OUT=$(SHOW_SERIAL_OUT) \
+		+REG_CSV_FILE=Register.csv \
+		+RSD_LOG_FILE=RSD.log \
+		+WAVE_LOG_FILE=simx.vcd
 	$(KANATA_CONVERTER) $(RSD_LOG_FILE_RTL) $(KANATA_LOG_FILE_RTL)
 
 $(LIBRARY_WORK_RTL):
