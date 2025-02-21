@@ -29,14 +29,9 @@ KANATA_LOG_FILE_RTL = Kanata.log
 # Include core source code definition
 include Makefiles/CoreSources.inc.mk
 
-
-DEBUG_HELPERS = \
-	SysDeps/Verilator/VerilatorHelper.sv
-
 DEPS_RTL = \
 	$(TYPES:%=$(SOURCE_ROOT)%) \
 	$(MODULES:%=$(SOURCE_ROOT)%) \
-	$(DEBUG_HELPERS:%=$(SOURCE_ROOT)%) \
 	$(TEST_MODULES:%=$(SOURCE_ROOT)%) \
 
 # Temporally disabled warnings
