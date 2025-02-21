@@ -34,7 +34,7 @@ The key features of RSD are as follows:
 1.  Install the following software for running simulation.    
     * GNU Make, Python3, and GCC (x86-64) 6 or later
     * GCC (RISC-V) 7 or later
-    * Verilator v5.026 or later or Modelsim/QuestaSim or Xilinx Vitis 2019.2
+    * Verilator **v5.026 or later** or Modelsim/QuestaSim or Xilinx Vitis 2019.2
 
     Tested environment:
 
