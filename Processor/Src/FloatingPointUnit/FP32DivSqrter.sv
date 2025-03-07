@@ -110,6 +110,9 @@ output
     reg [25:0] quo;
     reg  [9:0] virtual_expo;
     reg        subnormal;
+
+    reg[3:0] div;
+    reg[2:0] q;
     always@(posedge clk) begin
         if (rst) begin
             lhs <= '0;
@@ -139,9 +142,9 @@ output
             virtual_expo <= virtual_expo_w;
             subnormal <= subnormal_w;
         end else begin
-            reg[3:0] div = is_divide ? { 1'b0, v_rhs_mant[22:20] }
+            div = is_divide ? { 1'b0, v_rhs_mant[22:20] }
                                      : { quo[25], quo[23:21] };
-            reg[2:0] q = srt_table( rem[26:21], div );
+            q = srt_table( rem[26:21], div );
             case(q)
             3'b010: rem <= is_divide ? (rem << 2) - { v_rhs_mant, 3'b000 }
                                      : (rem << 2) - { quo[24:0], 2'b00 } - (27'd4 << (24-stage*2));
