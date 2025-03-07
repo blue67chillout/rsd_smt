@@ -1,4 +1,5 @@
 
+import FPUTypes::*;
 
 module FP32PipelinedFMA(
 input
@@ -222,7 +223,7 @@ module FMAStage4(
     end
 
     wire[75:0] abs_fma_result  = pipeReg.abs_fma_result;
-    wire [7:0] fmares_shift    = pipeReg.fmares_shift;
+    wire [6:0] fmares_shift    = pipeReg.fmares_shift;
     wire [9:0] virtual_expo    = pipeReg.virtual_expo;
     wire[31:0] nan             = pipeReg.nan;
     wire[31:0] addend          = pipeReg.addend;
@@ -239,10 +240,17 @@ module FMAStage4(
     wire res_is_tiny           = pipeReg.res_is_tiny;
     wire invalid_operation     = pipeReg.invalid_operation;
     wire [2:0] round_mode      = pipeReg.round_mode;
+    
 
     // Normalize and rounding decision
-    wire[24:0] shifter_result  = { abs_fma_result, 24'b0 } >> (7'd75 - fmares_shift); // [75:0] -> [24:0] normalizing left shift emulation. The 24'b0 is needed for cases where large cancellations occur. [24:0] = { mantissa(23bit), guard(1bit), extra_guard_for_underflow_detection(1bit) }
-    wire       sticky          = abs_fma_result << (7'd25 + fmares_shift) != 0; // the part right-shifted out above
+    wire[24:0] shifter_result;
+    wire       sticky;
+    NormalizeShifter shifter (
+        .fmares_shift (fmares_shift),
+        .ifma_result (abs_fma_result),
+        .shifter_result (shifter_result),
+        .sticky (sticky)
+    );
 
     wire       round_away      = round_to_away(result_sign, shifter_result[2], shifter_result[1], shifter_result[0] | sticky, round_mode);
     wire       exp_plus_one    = shifter_result >= 25'h1fffffc & round_away; // carry is generated with rounding taken into account
@@ -288,4 +296,22 @@ module FMAStage4(
     wire underflow         = inexact & (mulres_is_tiny ? addend[30:23] == 8'h00 | addend_plus_tiny[30:23] == 8'h00 : res_is_tiny | (subnormal & !u_exp_plus_one));
     //                NV                 DZ              OF        UF         NX
     assign fflags = { invalid_operation, divide_by_zero, overflow, underflow, inexact };
+endmodule
+
+module NormalizeShifter(input[6:0] fmares_shift, input[75:0] ifma_result, output[24:0] shifter_result, output sticky);
+    wire[75:0] shifter1_out = fmares_shift[6] ? { ifma_result[11:0], 64'b0 } : ifma_result[75:0];
+    wire[55:0] shifter2_out = fmares_shift[5] ? { shifter1_out[43:0], 12'b0 } : shifter1_out[75:20];
+    wire[39:0] shifter3_out = fmares_shift[4] ? shifter2_out[39:0] : shifter2_out[55:16];
+    wire[31:0] shifter4_out = fmares_shift[3] ? shifter3_out[31:0] : shifter3_out[39: 8];
+    wire[27:0] shifter5_out = fmares_shift[2] ? shifter4_out[27:0] : shifter4_out[31: 4];
+    wire[25:0] shifter6_out = fmares_shift[1] ? shifter5_out[25:0] : shifter5_out[27: 2];
+    wire[24:0] shifter7_out = fmares_shift[0] ? shifter6_out[24:0] : shifter6_out[25: 1];
+
+    assign sticky =   (!fmares_shift[5] & shifter1_out[19:0] != 0)
+                    | (!fmares_shift[4] & shifter2_out[15:0] != 0)
+                    | (!fmares_shift[3] & shifter3_out[ 7:0] != 0)
+                    | (!fmares_shift[2] & shifter4_out[ 3:0] != 0)
+                    | (!fmares_shift[1] & shifter5_out[ 1:0] != 0)
+                    | (!fmares_shift[0] & shifter6_out[ 0:0] != 0);
+    assign shifter_result = shifter7_out;
 endmodule
