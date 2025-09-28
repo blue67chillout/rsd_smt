@@ -83,6 +83,7 @@ Copyright 2019-2023 Ryota Shioya (shioya@ci.i.u-tokyo.ac.jp) and RSD contributor
 see also CREDITS.md. This implementation is released under the Apache License,
 Version 2.0, see LICENSE for details. This implementation integrates third-party 
 packages in accordance with the licenses presented in THIRD-PARTY-LICENSES.md.
+...i
 
 ## References
 
