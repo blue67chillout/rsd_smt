@@ -36,6 +36,7 @@ LEVEL1_TESTS = \
 	test-Fibonacci \
 	test-Exception \
 	test-DCache \
+	test-newtest \
 
 #	test-RV32I-MisalignedMemAccess \
 
@@ -188,7 +189,9 @@ test-RV32F-C:
 test-HelloWorld:
 	$(RUN_TEST_OMIT_MSG) Verification/TestCode/C/HelloWorld
 test-Fibonacci:
-	$(RUN_TEST_OMIT_MSG) Verification/TestCode/C/Fibonacci
+	$(RUN_TEST_OMIT_MSG) Verification/TestCode/C/Fibonaccii
+test-newtest :
+	$(RUN_TEST_OMIT_MSG) Verification/TestCode/C/newtest
 test-Coremark:
 	$(RUN_TEST_OMIT_MSG) Verification/TestCode/Coremark/Coremark
 test-Coremark_for_RV32I:

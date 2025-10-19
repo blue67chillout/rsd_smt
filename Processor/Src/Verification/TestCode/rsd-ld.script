@@ -1,34 +1,78 @@
 OUTPUT_FORMAT("elf32-littleriscv");
 OUTPUT_ARCH("riscv")
 
-/* エントリポイント．_start は rsd-crt.s で定義 */
+/* Entry point is _start defined in rsd-crt.s */
 ENTRY(_start);
 
 
 MEMORY {
-    ROM(rxai) :     ORIGIN = 0x00001000, LENGTH = 32k
-    RAM(wa) :       ORIGIN = 0x80000000, LENGTH = 32k
+    /* Define available memory regions */
+    ROM(rxai) :      ORIGIN = 0x00001000, LENGTH = 32k /* Read-only executable region */
+    RAM(wa) :        ORIGIN = 0x80000000, LENGTH = 32k /* Read-write region */
 }
+
+/* Define stack top symbols globally */
+/* Stacks grow downwards from these addresses */
+/* Stacks are placed at the very top of RAM */
+PROVIDE(__stack_top_thread1 = ORIGIN(RAM) + LENGTH(RAM));       /* Top of RAM: e.g., 0x80008000 for 32k RAM */
+PROVIDE(__stack_top_thread0 = ORIGIN(RAM) + LENGTH(RAM) - 4k); /* 4k below top: e.g., 0x80007000 */
+
 
 SECTIONS
 {
-    .text : { *(.text) }     > ROM
-    .rodata : { *(.rodata) } > ROM
-    .srodata : { *(.srodata) } > ROM
-    __rodata_end = .;
-    .data : { 
-      __data_start = .;
-      *(.data)
-      *(.sdata)
-      __data_end = .;
-    } > RAM  AT> ROM 
-    . = ALIGN(4);
-    .bss : { 
-      __bss_start = .;
-      *(.bss)
-      *(.sbss)
-      __bss_end = . ;
-    } > RAM AT> ROM
-    
-    .comment : { *(.comment) } > ROM
+    /* Code section */
+    .text : {
+        *(.text*)          /* Place all code here */
+        . = ALIGN(4);      /* Ensure alignment before defining _end */
+        PROVIDE(_end = .); /* Define _end AFTER all .text */
+                           /* This symbol is used by crt.s for the halt loop */
+    } > ROM
+
+    /* Read-only data */
+    .rodata : { *(.rodata*) } > ROM
+    .srodata : { *(.srodata*) } > ROM
+    __rodata_end = .; /* Symbol marking the end of ROM data (for .data copy) */
+
+    /* Initialized data */
+    .data : ALIGN(4) {
+        __data_start = .;
+        *(.data*)
+        *(.sdata*)
+        __data_end = .;
+    } > RAM AT> ROM /* VMA is RAM, LMA is ROM */
+
+    /* Uninitialized data */
+    .bss : ALIGN(4) {
+        __bss_start = .;
+        *(.sbss*)
+        *(.bss*)
+        *(COMMON)
+        __bss_end = .;    /* Symbol marking end of .bss in RAM */
+    } > RAM
+
+    /* End symbol for heap start if needed */
+    /* 'end' usually marks end of BSS, before stacks */
+    PROVIDE(end = __bss_end);
+
+
+    /* --- NO Explicit Stack Sections Needed --- */
+    /* The PROVIDE symbols define the top addresses. */
+    /* The space is implicitly reserved at the top of RAM. */
+
+
+    /* --- Assertions to check memory layout --- */
+    /* Ensure BSS doesn't overlap with the lowest stack's bottom */
+    /* (_stack_top_thread0 - 4k is the bottom address of stack 0) */
+    ASSERT(end <= __stack_top_thread0 - 4k, "Error: BSS/Data overlaps Stack 0 space")
+
+    /* Ensure stack 0 doesn't overlap with stack 1's bottom */
+    /* (_stack_top_thread1 - 4k is the bottom address of stack 1) */
+    ASSERT(__stack_top_thread0 <= __stack_top_thread1 - 4k, "Error: Stack 0 overlaps Stack 1 space")
+
+    /* Ensure the lowest stack doesn't go below RAM start */
+    ASSERT(__stack_top_thread0 - 4k >= ORIGIN(RAM), "Error: RAM overflow! Stacks require more space than available.")
+
+
+    /* Discard unnecessary sections */
+    /DISCARD/ : { *(.comment) *(.note*) }
 }

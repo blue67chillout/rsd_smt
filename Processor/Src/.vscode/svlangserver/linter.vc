@@ -1,0 +1,115 @@
+-v /home/friday/rsd_smt/Processor/Src/MicroArchConf.sv
+-v /home/friday/rsd_smt/Processor/Src/BasicTypes.sv
+-v /home/friday/rsd_smt/Processor/Src/Decoder/OpFormat.sv
+-v /home/friday/rsd_smt/Processor/Src/Memory/MemoryMapTypes.sv
+-v /home/friday/rsd_smt/Processor/Src/RenameLogic/ActiveListIndexTypes.sv
+-v /home/friday/rsd_smt/Processor/Src/Cache/CacheSystemTypes.sv
+-v /home/friday/rsd_smt/Processor/Src/Decoder/MicroOp.sv
+-v /home/friday/rsd_smt/Processor/Src/LoadStoreUnit/LoadStoreUnitTypes.sv
+-v /home/friday/rsd_smt/Processor/Src/FetchUnit/FetchUnitTypes.sv
+-v /home/friday/rsd_smt/Processor/Src/RegisterFile/BypassTypes.sv
+-v /home/friday/rsd_smt/Processor/Src/RenameLogic/RenameLogicTypes.sv
+-v /home/friday/rsd_smt/Processor/Src/Scheduler/SchedulerTypes.sv
+-v /home/friday/rsd_smt/Processor/Src/Pipeline/PipelineTypes.sv
+-v /home/friday/rsd_smt/Processor/Src/Debug/DebugTypes.sv
+-v /home/friday/rsd_smt/Processor/Src/IO/IO_UnitTypes.sv
+-v /home/friday/rsd_smt/Processor/Src/FloatingPointUnit/FPUTypes.sv
+-v /home/friday/rsd_smt/Processor/Src/Memory/MemoryTypes.sv
+-v /home/friday/rsd_smt/Processor/Src/Privileged/CSR_UnitTypes.sv
+-v /home/friday/rsd_smt/Processor/Src/Verification/Dumper.sv
++incdir+/home/friday/rsd_smt/Processor/Src
++incdir+/home/friday/rsd_smt/Processor/Src/Cache
++incdir+/home/friday/rsd_smt/Processor/Src/Debug
++incdir+/home/friday/rsd_smt/Processor/Src/Decoder
++incdir+/home/friday/rsd_smt/Processor/Src/ExecUnit
++incdir+/home/friday/rsd_smt/Processor/Src/FetchUnit
++incdir+/home/friday/rsd_smt/Processor/Src/FloatingPointUnit
++incdir+/home/friday/rsd_smt/Processor/Src/IO
++incdir+/home/friday/rsd_smt/Processor/Src/LoadStoreUnit
++incdir+/home/friday/rsd_smt/Processor/Src/Memory
++incdir+/home/friday/rsd_smt/Processor/Src/MulDivUnit
++incdir+/home/friday/rsd_smt/Processor/Src/Pipeline
++incdir+/home/friday/rsd_smt/Processor/Src/Pipeline/ComplexIntegerBackEnd
++incdir+/home/friday/rsd_smt/Processor/Src/Pipeline/FetchStage
++incdir+/home/friday/rsd_smt/Processor/Src/Pipeline/FPBackEnd
++incdir+/home/friday/rsd_smt/Processor/Src/Pipeline/IntegerBackEnd
++incdir+/home/friday/rsd_smt/Processor/Src/Pipeline/MemoryBackEnd
++incdir+/home/friday/rsd_smt/Processor/Src/Primitives
++incdir+/home/friday/rsd_smt/Processor/Src/Privileged
++incdir+/home/friday/rsd_smt/Processor/Src/Recovery
++incdir+/home/friday/rsd_smt/Processor/Src/RegisterFile
++incdir+/home/friday/rsd_smt/Processor/Src/RenameLogic
++incdir+/home/friday/rsd_smt/Processor/Src/Scheduler
++incdir+/home/friday/rsd_smt/Processor/Src/Verification
++incdir+/home/friday/rsd_smt/Processor/Src/Verification/UnitTest/BlockDualPortRAM
++incdir+/home/friday/rsd_smt/Processor/Src/Verification/UnitTest/BlockMultiPortRAM
++incdir+/home/friday/rsd_smt/Processor/Src/Verification/UnitTest/BlockTrueDualPortRAM
++incdir+/home/friday/rsd_smt/Processor/Src/Verification/UnitTest/CacheSystem
++incdir+/home/friday/rsd_smt/Processor/Src/Verification/UnitTest/DCache
++incdir+/home/friday/rsd_smt/Processor/Src/Verification/UnitTest/DCacheFiller
++incdir+/home/friday/rsd_smt/Processor/Src/Verification/UnitTest/DistributedDualPortRAM
++incdir+/home/friday/rsd_smt/Processor/Src/Verification/UnitTest/DistributedMultiBankRAM
++incdir+/home/friday/rsd_smt/Processor/Src/Verification/UnitTest/DistributedMultiPortRAM
++incdir+/home/friday/rsd_smt/Processor/Src/Verification/UnitTest/DistributedSharedMultiPortRAM
++incdir+/home/friday/rsd_smt/Processor/Src/Verification/UnitTest/DistributedSinglePortRAM
++incdir+/home/friday/rsd_smt/Processor/Src/Verification/UnitTest/Divider
++incdir+/home/friday/rsd_smt/Processor/Src/Verification/UnitTest/DRAM_Controller
++incdir+/home/friday/rsd_smt/Processor/Src/Verification/UnitTest/ICache
++incdir+/home/friday/rsd_smt/Processor/Src/Verification/UnitTest/ICacheFiller
++incdir+/home/friday/rsd_smt/Processor/Src/Verification/UnitTest/ICacheSystem
++incdir+/home/friday/rsd_smt/Processor/Src/Verification/UnitTest/InitializedBlockRAM
++incdir+/home/friday/rsd_smt/Processor/Src/Verification/UnitTest/LRU_Counter
++incdir+/home/friday/rsd_smt/Processor/Src/Verification/UnitTest/Memory
++incdir+/home/friday/rsd_smt/Processor/Src/Verification/UnitTest/MultiWidthFreeList
++incdir+/home/friday/rsd_smt/Processor/Src/Verification/UnitTest/MultiWidthQueuePointer
++incdir+/home/friday/rsd_smt/Processor/Src/Verification/UnitTest/RegisterFile
++incdir+/home/friday/rsd_smt/Processor/Src/Verification/UnitTest/RegisterMultiPortRAM
++incdir+/home/friday/rsd_smt/Processor/Src/Verification/UnitTest/SourceCAM
++incdir+/home/friday/rsd_smt/Processor/Src
++incdir+/home/friday/rsd_smt/Processor/Src/Cache
++incdir+/home/friday/rsd_smt/Processor/Src/Debug
++incdir+/home/friday/rsd_smt/Processor/Src/Decoder
++incdir+/home/friday/rsd_smt/Processor/Src/ExecUnit
++incdir+/home/friday/rsd_smt/Processor/Src/FetchUnit
++incdir+/home/friday/rsd_smt/Processor/Src/FloatingPointUnit
++incdir+/home/friday/rsd_smt/Processor/Src/IO
++incdir+/home/friday/rsd_smt/Processor/Src/LoadStoreUnit
++incdir+/home/friday/rsd_smt/Processor/Src/Memory
++incdir+/home/friday/rsd_smt/Processor/Src/MulDivUnit
++incdir+/home/friday/rsd_smt/Processor/Src/Pipeline
++incdir+/home/friday/rsd_smt/Processor/Src/Pipeline/ComplexIntegerBackEnd
++incdir+/home/friday/rsd_smt/Processor/Src/Pipeline/FetchStage
++incdir+/home/friday/rsd_smt/Processor/Src/Pipeline/FPBackEnd
++incdir+/home/friday/rsd_smt/Processor/Src/Pipeline/IntegerBackEnd
++incdir+/home/friday/rsd_smt/Processor/Src/Pipeline/MemoryBackEnd
++incdir+/home/friday/rsd_smt/Processor/Src/Primitives
++incdir+/home/friday/rsd_smt/Processor/Src/Privileged
++incdir+/home/friday/rsd_smt/Processor/Src/Recovery
++incdir+/home/friday/rsd_smt/Processor/Src/RegisterFile
++incdir+/home/friday/rsd_smt/Processor/Src/RenameLogic
++incdir+/home/friday/rsd_smt/Processor/Src/Scheduler
++incdir+/home/friday/rsd_smt/Processor/Src/Verification
++incdir+/home/friday/rsd_smt/Processor/Src/Verification/UnitTest/BlockDualPortRAM
++incdir+/home/friday/rsd_smt/Processor/Src/Verification/UnitTest/BlockMultiPortRAM
++incdir+/home/friday/rsd_smt/Processor/Src/Verification/UnitTest/BlockTrueDualPortRAM
++incdir+/home/friday/rsd_smt/Processor/Src/Verification/UnitTest/CacheSystem
++incdir+/home/friday/rsd_smt/Processor/Src/Verification/UnitTest/DCache
++incdir+/home/friday/rsd_smt/Processor/Src/Verification/UnitTest/DCacheFiller
++incdir+/home/friday/rsd_smt/Processor/Src/Verification/UnitTest/DistributedDualPortRAM
++incdir+/home/friday/rsd_smt/Processor/Src/Verification/UnitTest/DistributedMultiBankRAM
++incdir+/home/friday/rsd_smt/Processor/Src/Verification/UnitTest/DistributedMultiPortRAM
++incdir+/home/friday/rsd_smt/Processor/Src/Verification/UnitTest/DistributedSharedMultiPortRAM
++incdir+/home/friday/rsd_smt/Processor/Src/Verification/UnitTest/DistributedSinglePortRAM
++incdir+/home/friday/rsd_smt/Processor/Src/Verification/UnitTest/Divider
++incdir+/home/friday/rsd_smt/Processor/Src/Verification/UnitTest/DRAM_Controller
++incdir+/home/friday/rsd_smt/Processor/Src/Verification/UnitTest/ICache
++incdir+/home/friday/rsd_smt/Processor/Src/Verification/UnitTest/ICacheFiller
++incdir+/home/friday/rsd_smt/Processor/Src/Verification/UnitTest/ICacheSystem
++incdir+/home/friday/rsd_smt/Processor/Src/Verification/UnitTest/InitializedBlockRAM
++incdir+/home/friday/rsd_smt/Processor/Src/Verification/UnitTest/LRU_Counter
++incdir+/home/friday/rsd_smt/Processor/Src/Verification/UnitTest/Memory
++incdir+/home/friday/rsd_smt/Processor/Src/Verification/UnitTest/MultiWidthFreeList
++incdir+/home/friday/rsd_smt/Processor/Src/Verification/UnitTest/MultiWidthQueuePointer
++incdir+/home/friday/rsd_smt/Processor/Src/Verification/UnitTest/RegisterFile
++incdir+/home/friday/rsd_smt/Processor/Src/Verification/UnitTest/RegisterMultiPortRAM
++incdir+/home/friday/rsd_smt/Processor/Src/Verification/UnitTest/SourceCAM

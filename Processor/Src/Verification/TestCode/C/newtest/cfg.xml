@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Config>
+  <MaxTestCycles>10000</MaxTestCycles>
+  <RegisterValues>
+	  <R2>0x80020000</R2>
+	  <R5>0x0000005a</R5>
+	  <R6>0x1234f378</R6>
+	  <R7>0x04000000</R7>
+	  <R10>0x1634f3d2</R10>
+	  <PC>0x00001004</PC>
+  </RegisterValues>
+</Config>

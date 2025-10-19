@@ -7,11 +7,12 @@ include ../../Makefile.inc
 
 OBJS = $(SRCS:.c=.o)
 
-all: code.hex
+all: code.hex code.s
 
 %.o: %.c Makefile
 	$(CC) $(CFLAGS) $(XCFLAGS) -o $@ -c $<
-
+%.s: %.c Makefile
+	$(CC) $(CFLAGS) $(XCFLAGS) -S $< -o $@
 
 # LD の引数の順にアドレス空間に配置されるため，
 # CRTOBJ は必ず先頭に置く必要がある
@@ -34,5 +35,5 @@ code.hex: code.bin
 
 
 clean:
-	rm $(OBJS) code.hex code.dump code.bin code.rom.bin code.elf -f
+	rm $(OBJS) code.hex code.dump code.bin code.rom.bin code.elf code.s -f
 	
