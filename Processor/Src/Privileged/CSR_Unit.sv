@@ -48,7 +48,8 @@ module CSR_Unit(
         mcycle = csrReg.mcycle;
         
         // Read a CSR value
-        unique case (port.csrNumber) 
+        unique case (port.csrNumber)
+            CSR_NUM_MHARTID:    rv = port.tid;  // Per-thread hardware thread ID
             CSR_NUM_MSTATUS:    rv = csrReg.mstatus;
             CSR_NUM_MIP:        rv = csrReg.mip;
             CSR_NUM_MIE:        rv = csrReg.mie;

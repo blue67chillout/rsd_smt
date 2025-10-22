@@ -23,6 +23,7 @@ interface SchedulerIF( input logic clk, rst, rstStart );
 
     // Dispatch
     logic               write [ DISPATCH_WIDTH ];
+    ThreadID            writeTid [ DISPATCH_WIDTH ];  // Thread ID for dispatch
     IssueQueueIndexPath writePtr [ DISPATCH_WIDTH ];
     ActiveListIndexPath writeAL_Ptr [ DISPATCH_WIDTH ];
     IntIssueQueueEntry  intWriteData [ DISPATCH_WIDTH ];
@@ -199,6 +200,7 @@ interface SchedulerIF( input logic clk, rst, rstStart );
     modport DispatchStage(
     output
         write,
+        writeTid,
         writePtr,
         writeAL_Ptr,
         intWriteData,

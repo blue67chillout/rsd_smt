@@ -49,15 +49,31 @@ This document summarizes all changes made to convert the RISC-V out-of-order pro
 ## 5. Issue Queue Modifications
 - **File**: `Scheduler/SchedulerTypes.sv`
   - Added `ThreadID tid` to all `IssueQueueEntry` structs (`IntIssueQueueEntry`, `ComplexIssueQueueEntry`, `MemIssueQueueEntry`, `FPIssueQueueEntry`).
-- **File**: `Scheduler/IssueQueue.sv` (Conceptual Changes)
-  - Duplicate free lists and RAMs per-thread: `freeList[THREAD_NUM]`, `intRAM[THREAD_NUM]`, etc.
-  - Modify wakeup: Broadcast reg writes only to matching `tid` queues.
-  - Modify select: Select per-thread, arbitrate shared execution units (e.g., round-robin).
-  - Add `tid` checks in flush/recovery logic.
+- **File**: `Scheduler/IssueQueue.sv` (Full Implementation Guide)
+  - **Step 1: Duplicate RAMs and Free Lists Per-Thread**:
+    - Change single RAMs (e.g., `intRAM`) to arrays `[THREAD_NUM]`.
+    - Change `freeList` to `freeList[THREAD_NUM]`.
+    - Example: `DistributedMultiPortRAM intRAM[THREAD_NUM] (...);`
+  - **Step 2: Modify Enqueue Logic**:
+    - Use `tid = port.writeTid[i]` to index thread's free list and RAM.
+    - Set `intRAM[tid].wv[i].tid = tid;`
+  - **Step 3: Modify Wakeup Logic**:
+    - Add `if (t == broadcastTid)` to only wake matching thread's entries.
+    - Check `intRAM[t].rv[i].tid == broadcastTid` for reg matches.
+  - **Step 4: Modify Select Logic**:
+    - Select per-thread: Loop over threads, find oldest ready entry per thread.
+    - Arbitrate shared units: Use round-robin to choose which thread issues (e.g., `winner = roundRobinArbiter(threadHasReady);`).
+  - **Step 5: Modify Flush/Recovery**:
+    - Add `if (t == flushTid)` to selectively flush per-thread queues.
 - **File**: `Scheduler/SchedulerIF.sv`
-  - Add `ThreadID` to dispatch/issue signals (assumed propagation).
+  - Added `ThreadID writeTid [DISPATCH_WIDTH];` to the interface for dispatch.
+  - Updated `modport DispatchStage` to output `writeTid`.
 
-## 6. Other Propagations
+## 6. CSR Unit Modifications
+- **CSR_UnitIF.sv**: Added `ThreadID tid` to the interface for per-thread CSR access.
+- **CSR_Unit.sv**: Added `CSR_NUM_MHARTID: rv = port.tid;` to return the thread ID on reads. Other CSRs remain shared for now.
+
+## 7. Other Propagations
 - **Interfaces**: Updated all relevant IFs (e.g., `PipelineTypes.sv`, `ControllerIF.sv`) to include `ThreadID` where needed for thread-specific operations.
 - **RenameLogic**: Duplicate rename tables and free lists per-thread (modify `RenameLogic.sv`).
 - **Scheduler/ActiveList**: Duplicate per-thread (modify `ActiveList.sv`).
