@@ -90,7 +90,7 @@ output
     MemoryTagAccessStageIF mtStageIF( clk, rst );
     MemoryAccessStageIF maStageIF( clk, rst );
     //MemoryRegisterWriteStageIF memRwStageIF( clk, rst );
-    
+
     FPIssueStageIF fpIsStageIF( clk, rst );
     FPRegisterReadStageIF fpRrStageIF( clk, rst );
     FPExecutionStageIF fpExStageIF( clk, rst );
@@ -140,7 +140,7 @@ output
         BranchPredictor brPred( npStageIF, ifStageIF, ctrlIF );
     FetchStage ifStage( ifStageIF, npStageIF, ctrlIF, debugIF, perfCounterIF );
         ICache iCache( npStageIF, ifStageIF, cacheSystemIF );
-    
+
     PreDecodeStage pdStage( pdStageIF, ifStageIF, ctrlIF, debugIF );
     DecodeStage idStage( idStageIF, pdStageIF, ctrlIF, debugIF, perfCounterIF );
 
@@ -151,7 +151,7 @@ output
         RMT rmt_wat( renameLogicIF );
         RetirementRMT retirementRMT( renameLogicIF );
         MemoryDependencyPredictor memoryDependencyPredictor( rnStageIF, loadStoreUnitIF );
-    
+
     DispatchStage dsStage( /*dsStageIF,*/ rnStageIF, schedulerIF, ctrlIF, debugIF );
 
     ScheduleStage scStage( scStageIF, schedulerIF, recoveryManagerIF, ctrlIF );
@@ -199,7 +199,7 @@ output
     RegisterFile registerFile( registerFileIF );
         BypassController bypassController( bypassNetworkIF, ctrlIF );
         BypassNetwork  bypassNetwork( bypassNetworkIF, ctrlIF );
-    
+
     // A commitment stage generates a flush signal and this is send to scheduler.
     CommitStage cmStage( cmStageIF, renameLogicIF, activeListIF, loadStoreUnitIF, recoveryManagerIF, csrUnitIF, debugIF );
         RecoveryManager recoveryManager( recoveryManagerIF, activeListIF, csrUnitIF, ctrlIF, perfCounterIF );

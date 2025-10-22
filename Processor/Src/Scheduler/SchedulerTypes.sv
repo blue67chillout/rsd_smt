@@ -189,20 +189,21 @@ typedef union packed    // IntOpInfo
 typedef struct packed // IntIssueQueueEntry
 {
 `ifndef RSD_DISABLE_DEBUG_REGISTER // Debug info
-    OpId      opId;
+OpId      opId;
 `endif
 
-    // Decoded op information
-    IntOpInfo intOpInfo;
+// Decoded op information
+IntOpInfo intOpInfo;
 
-    IntMicroOpSubType opType;
-    CondCode cond;
-    ActiveListIndexPath activeListPtr;
-    LoadQueueIndexPath loadQueueRecoveryPtr;    //for recovery
-    StoreQueueIndexPath storeQueueRecoveryPtr;    //for recovery
-    OpSrc opSrc;
-    OpDst opDst;
-    PC_Path pc;
+IntMicroOpSubType opType;
+CondCode cond;
+ActiveListIndexPath activeListPtr;
+LoadQueueIndexPath loadQueueRecoveryPtr;    //for recovery
+StoreQueueIndexPath storeQueueRecoveryPtr;    //for recovery
+OpSrc opSrc;
+OpDst opDst;
+PC_Path pc;
+    ThreadID tid;
 } IntIssueQueueEntry;
 
 
@@ -233,19 +234,20 @@ typedef union packed    // ComplexOpInfo
 typedef struct packed // ComplexIssueQueueEntry
 {
 `ifndef RSD_DISABLE_DEBUG_REGISTER // Debug info
-    OpId      opId;
+OpId      opId;
 `endif
 
-    // Decoded op information
-    ComplexOpInfo complexOpInfo;
-    ComplexMicroOpSubType opType;
+// Decoded op information
+ComplexOpInfo complexOpInfo;
+ComplexMicroOpSubType opType;
 
-    ActiveListIndexPath activeListPtr;
-    LoadQueueIndexPath loadQueueRecoveryPtr;    //for recovery
-    StoreQueueIndexPath storeQueueRecoveryPtr;    //for recovery
-    OpSrc opSrc;
-    OpDst opDst;
-    PC_Path pc;
+ActiveListIndexPath activeListPtr;
+LoadQueueIndexPath loadQueueRecoveryPtr;    //for recovery
+StoreQueueIndexPath storeQueueRecoveryPtr;    //for recovery
+OpSrc opSrc;
+OpDst opDst;
+PC_Path pc;
+    ThreadID tid;
 } ComplexIssueQueueEntry;
 
 typedef struct packed // MemOpInfo
@@ -283,26 +285,27 @@ typedef struct packed // MemOpInfo
 typedef struct packed // MemIssueQueueEntry
 {
 `ifndef RSD_DISABLE_DEBUG_REGISTER // Debug info
-    OpId      opId;
+OpId      opId;
 `endif
 
-    // Decoded op information
-    MemOpInfo memOpInfo;    
+// Decoded op information
+MemOpInfo memOpInfo;
 
-    // Pointer of LSQ
-    LoadQueueIndexPath loadQueuePtr;
-    StoreQueueIndexPath storeQueuePtr;
+// Pointer of LSQ
+LoadQueueIndexPath loadQueuePtr;
+StoreQueueIndexPath storeQueuePtr;
 
-    // Whether this load has allocated MSHR or not
-    logic hasAllocatedMSHR;
-    MSHR_IndexPath mshrID;
+// Whether this load has allocated MSHR or not
+logic hasAllocatedMSHR;
+MSHR_IndexPath mshrID;
 
-    ActiveListIndexPath activeListPtr;
-    LoadQueueIndexPath loadQueueRecoveryPtr;    //for recovery
-    StoreQueueIndexPath storeQueueRecoveryPtr;    //for recovery
-    OpSrc opSrc;
-    OpDst opDst;
-    PC_Path pc;
+ActiveListIndexPath activeListPtr;
+LoadQueueIndexPath loadQueueRecoveryPtr;    //for recovery
+StoreQueueIndexPath storeQueueRecoveryPtr;    //for recovery
+OpSrc opSrc;
+OpDst opDst;
+PC_Path pc;
+    ThreadID tid;
 } MemIssueQueueEntry;
 
 typedef struct packed // FPOpInfo
@@ -320,17 +323,18 @@ typedef struct packed // FPOpInfo
 typedef struct packed // FPIssueQueueEntry
 {
 `ifndef RSD_DISABLE_DEBUG_REGISTER // Debug info
-    OpId      opId;
+OpId      opId;
 `endif
 
-    FPOpInfo fpOpInfo;
+FPOpInfo fpOpInfo;
 
-    ActiveListIndexPath activeListPtr;
-    LoadQueueIndexPath loadQueueRecoveryPtr;    //for recovery
-    StoreQueueIndexPath storeQueueRecoveryPtr;    //for recovery
-    OpSrc opSrc;
-    OpDst opDst;
-    PC_Path pc;
+ActiveListIndexPath activeListPtr;
+LoadQueueIndexPath loadQueueRecoveryPtr;    //for recovery
+StoreQueueIndexPath storeQueueRecoveryPtr;    //for recovery
+OpSrc opSrc;
+OpDst opDst;
+PC_Path pc;
+    ThreadID tid;
 } FPIssueQueueEntry;
 
 //

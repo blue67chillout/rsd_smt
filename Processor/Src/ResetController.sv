@@ -11,7 +11,7 @@ module ResetController #(
     output logic rst, rstStart
 );
     logic unsigned [ $clog2(CYCLE_OF_RESET_SEQUENCE):0 ] count;
-    
+
     always_ff @(posedge clk or posedge rstTrigger) begin
         // --- rst
         // - rstTriggerがアサートされた後、
@@ -29,7 +29,7 @@ module ResetController #(
             rst <= FALSE;
         end
     end
-    
+
     // --- rstStart
     // - リセットの開始時に1サイクルだけアサートされる信号線。
     //   RAMなどを初期化する回路は、

@@ -40,9 +40,10 @@ typedef logic [BTB_QUEUE_SIZE_BIT_WIDTH-1:0] BTBQueuePointerPath;
 
 typedef struct packed // struct BTB_Entry
 {
-    logic valid;
-    logic [BTB_TAG_WIDTH-1:0] tag;
-    BTB_AddrPath data;
+logic valid;
+ThreadID tid;
+logic [BTB_TAG_WIDTH-1:0] tag;
+BTB_AddrPath data;
     logic isCondBr;
 } BTB_Entry;
 
@@ -52,18 +53,20 @@ typedef struct packed // struct PhtQueueEntry
     BTB_Entry btbWV;                        // result of bpred
 } BTBQueueEntry;
 
-function automatic BTB_IndexPath ToBTB_Index(PC_Path addr);
-    return addr[
-        BTB_ENTRY_NUM_BIT_WIDTH + INSN_ADDR_BIT_WIDTH - 1: 
-        INSN_ADDR_BIT_WIDTH
-    ];
+function automatic BTB_IndexPath ToBTB_Index(PC_Path pc);
+logic [BTB_ENTRY_NUM_BIT_WIDTH-1:0] index = pc.addr[
+BTB_ENTRY_NUM_BIT_WIDTH + INSN_ADDR_BIT_WIDTH - 1:
+INSN_ADDR_BIT_WIDTH
+];
+    return index ^ pc.tid;  // Include tid in hash
 endfunction
 
-function automatic BTB_TagPath ToBTB_Tag(PC_Path addr);
-    return addr[
-        BTB_ENTRY_NUM_BIT_WIDTH + INSN_ADDR_BIT_WIDTH + BTB_TAG_WIDTH - 1:
-        BTB_ENTRY_NUM_BIT_WIDTH + INSN_ADDR_BIT_WIDTH
+function automatic BTB_TagPath ToBTB_Tag(PC_Path pc);
+logic [BTB_TAG_WIDTH-1:0] tag = pc.addr[
+BTB_ENTRY_NUM_BIT_WIDTH + INSN_ADDR_BIT_WIDTH + BTB_TAG_WIDTH - 1:
+    BTB_ENTRY_NUM_BIT_WIDTH + INSN_ADDR_BIT_WIDTH
     ];
+    return tag ^ pc.tid;  // Include tid in tag
 endfunction
 
 function automatic BTB_AddrPath ToBTB_Addr(PC_Path addr);

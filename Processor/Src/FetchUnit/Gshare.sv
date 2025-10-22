@@ -10,14 +10,15 @@ import BasicTypes::*;
 import MemoryMapTypes::*;
 import FetchUnitTypes::*;
 
-function automatic PHT_IndexPath ToPHT_Index_Global(AddrPath addr, BranchGlobalHistoryPath gh);
-    PHT_IndexPath phtIndex;
-    phtIndex =
-        addr[
-            PHT_ENTRY_NUM_BIT_WIDTH + INSN_ADDR_BIT_WIDTH - 1: 
-            INSN_ADDR_BIT_WIDTH
-        ];
-    phtIndex[PHT_ENTRY_NUM_BIT_WIDTH - 1 : PHT_ENTRY_NUM_BIT_WIDTH - BRANCH_GLOBAL_HISTORY_BIT_WIDTH] ^= gh;
+function automatic PHT_IndexPath ToPHT_Index_Global(PC_Path pc, BranchGlobalHistoryPath gh);
+PHT_IndexPath phtIndex;
+phtIndex =
+pc.addr[
+PHT_ENTRY_NUM_BIT_WIDTH + INSN_ADDR_BIT_WIDTH - 1:
+INSN_ADDR_BIT_WIDTH
+];
+phtIndex[PHT_ENTRY_NUM_BIT_WIDTH - 1 : PHT_ENTRY_NUM_BIT_WIDTH - BRANCH_GLOBAL_HISTORY_BIT_WIDTH] ^= gh;
+phtIndex ^= pc.tid;  // Include tid in index
     return phtIndex;
 endfunction
 

@@ -46,7 +46,7 @@ module RegisterFile(
 `endif
     
     DistributedMultiPortRAM #(
-        .ENTRY_NUM( PSCALAR_NUM ),
+        .ENTRY_NUM( THREAD_NUM * PSCALAR_NUM ),
         .ENTRY_BIT_SIZE( $bits(PRegDataPath) ),
         .READ_NUM( REG_READ_NUM ),
         .WRITE_NUM( REG_WRITE_NUM )
@@ -75,11 +75,11 @@ module RegisterFile(
 `else
             regWE     [i] = port.intDstRegWE[i];
 `endif
-            dstRegNum [i] = port.intDstRegNum[i].regNum;
+            dstRegNum [i] = (port.intDstTid[i] * PSCALAR_NUM) + port.intDstRegNum[i].regNum;
             dstRegData[i] = port.intDstRegData[i];
 
-            srcRegNum[i*2  ] = port.intSrcRegNumA[i].regNum;
-            srcRegNum[i*2+1] = port.intSrcRegNumB[i].regNum;
+            srcRegNum[i*2  ] = (port.intSrcTidA[i] * PSCALAR_NUM) + port.intSrcRegNumA[i].regNum;
+            srcRegNum[i*2+1] = (port.intSrcTidB[i] * PSCALAR_NUM) + port.intSrcRegNumB[i].regNum;
             port.intSrcRegDataA[i] = srcRegData[i*2  ];
             port.intSrcRegDataB[i] = srcRegData[i*2+1];
         end
@@ -90,18 +90,18 @@ module RegisterFile(
 `else
             regWE     [i+INT_ISSUE_WIDTH] = port.complexDstRegWE[i];
 `endif
-            dstRegNum [i+INT_ISSUE_WIDTH] = port.complexDstRegNum[i].regNum;
+            dstRegNum [i+INT_ISSUE_WIDTH] = (port.complexDstTid[i] * PSCALAR_NUM) + port.complexDstRegNum[i].regNum;
             dstRegData[i+INT_ISSUE_WIDTH] = port.complexDstRegData[i];
 
-            srcRegNum[(i+INT_ISSUE_WIDTH)*2  ] = port.complexSrcRegNumA[i].regNum;
-            srcRegNum[(i+INT_ISSUE_WIDTH)*2+1] = port.complexSrcRegNumB[i].regNum;
+            srcRegNum[(i+INT_ISSUE_WIDTH)*2  ] = (port.complexSrcTidA[i] * PSCALAR_NUM) + port.complexSrcRegNumA[i].regNum;
+            srcRegNum[(i+INT_ISSUE_WIDTH)*2+1] = (port.complexSrcTidB[i] * PSCALAR_NUM) + port.complexSrcRegNumB[i].regNum;
             port.complexSrcRegDataA[i] = srcRegData[(i+INT_ISSUE_WIDTH)*2  ];
             port.complexSrcRegDataB[i] = srcRegData[(i+INT_ISSUE_WIDTH)*2+1];
         end
 `endif
         for ( int i = 0; i < MEM_ISSUE_WIDTH; i++ ) begin
-            srcRegNum[(i+INT_ISSUE_WIDTH+COMPLEX_ISSUE_WIDTH)*2  ] = port.memSrcRegNumA[i].regNum;
-            srcRegNum[(i+INT_ISSUE_WIDTH+COMPLEX_ISSUE_WIDTH)*2+1] = port.memSrcRegNumB[i].regNum;
+            srcRegNum[(i+INT_ISSUE_WIDTH+COMPLEX_ISSUE_WIDTH)*2  ] = (port.memSrcTidA[i] * PSCALAR_NUM) + port.memSrcRegNumA[i].regNum;
+            srcRegNum[(i+INT_ISSUE_WIDTH+COMPLEX_ISSUE_WIDTH)*2+1] = (port.memSrcTidB[i] * PSCALAR_NUM) + port.memSrcRegNumB[i].regNum;
             port.memSrcRegDataA[i] = srcRegData[(i+INT_ISSUE_WIDTH+COMPLEX_ISSUE_WIDTH)*2  ];
 `ifndef RSD_MARCH_FP_PIPE
             port.memSrcRegDataB[i] = srcRegData[(i+INT_ISSUE_WIDTH+COMPLEX_ISSUE_WIDTH)*2+1];
@@ -117,7 +117,7 @@ module RegisterFile(
             regWE     [(i+INT_ISSUE_WIDTH+COMPLEX_ISSUE_WIDTH)] = port.memDstRegWE[i];
 `endif
 
-            dstRegNum [(i+INT_ISSUE_WIDTH+COMPLEX_ISSUE_WIDTH)] = port.memDstRegNum[i].regNum;
+            dstRegNum [(i+INT_ISSUE_WIDTH+COMPLEX_ISSUE_WIDTH)] = (port.memDstTid[i] * PSCALAR_NUM) + port.memDstRegNum[i].regNum;
             dstRegData[(i+INT_ISSUE_WIDTH+COMPLEX_ISSUE_WIDTH)] = port.memDstRegData[i];
         end
 
@@ -150,7 +150,7 @@ module RegisterFile(
     //
 `ifdef RSD_MARCH_FP_PIPE
     DistributedMultiPortRAM #(
-        .ENTRY_NUM( PSCALAR_FP_NUM ),
+        .ENTRY_NUM( THREAD_NUM * PSCALAR_FP_NUM ),
         .ENTRY_BIT_SIZE( $bits(PRegDataPath) ),
         .READ_NUM( FP_READ_NUM ),
         .WRITE_NUM( FP_WRITE_NUM )
@@ -175,24 +175,24 @@ module RegisterFile(
     always_comb begin
         for ( int i = 0; i < FP_ISSUE_WIDTH; i++ ) begin
             fpRegWE     [i] = port.fpDstRegWE[i] && port.fpDstRegNum[i].isFP;
-            dstFPRegNum [i] = port.fpDstRegNum[i].regNum;
+            dstFPRegNum [i] = (port.fpDstTid[i] * PSCALAR_FP_NUM) + port.fpDstRegNum[i].regNum;
             dstFPRegData[i] = port.fpDstRegData[i];
 
-            srcFPRegNum[i*3  ] = port.fpSrcRegNumA[i].regNum;
-            srcFPRegNum[i*3+1] = port.fpSrcRegNumB[i].regNum;
-            srcFPRegNum[i*3+2] = port.fpSrcRegNumC[i].regNum;
+            srcFPRegNum[i*3  ] = (port.fpSrcTidA[i] * PSCALAR_FP_NUM) + port.fpSrcRegNumA[i].regNum;
+            srcFPRegNum[i*3+1] = (port.fpSrcTidB[i] * PSCALAR_FP_NUM) + port.fpSrcRegNumB[i].regNum;
+            srcFPRegNum[i*3+2] = (port.fpSrcTidC[i] * PSCALAR_FP_NUM) + port.fpSrcRegNumC[i].regNum;
             port.fpSrcRegDataA[i] = port.fpSrcRegNumA[i].isFP ? srcFPRegData[i*3] : srcRegData[i+(INT_ISSUE_WIDTH+COMPLEX_ISSUE_WIDTH+MEM_ISSUE_WIDTH)*2];
             port.fpSrcRegDataB[i] = srcFPRegData[i*3+1];
             port.fpSrcRegDataC[i] = srcFPRegData[i*3+2];
         end
 
         for ( int i = 0; i < MEM_ISSUE_WIDTH; i++ ) begin
-            srcFPRegNum[i+FP_ISSUE_WIDTH*3] = port.memSrcRegNumB[i].regNum;
+            srcFPRegNum[i+FP_ISSUE_WIDTH*3] = (port.memSrcTidB[i] * PSCALAR_FP_NUM) + port.memSrcRegNumB[i].regNum;
         end
 
         for ( int i = 0; i < LOAD_ISSUE_WIDTH; i++ ) begin
             fpRegWE     [i+FP_ISSUE_WIDTH] = port.memDstRegWE[i] && port.memDstRegNum[i].isFP;
-            dstFPRegNum [i+FP_ISSUE_WIDTH] = port.memDstRegNum[i].regNum;
+            dstFPRegNum [i+FP_ISSUE_WIDTH] = (port.memDstTid[i] * PSCALAR_FP_NUM) + port.memDstRegNum[i].regNum;
             dstFPRegData[i+FP_ISSUE_WIDTH] = port.memDstRegData[i];
         end
         

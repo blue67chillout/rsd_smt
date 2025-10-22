@@ -49,23 +49,26 @@ localparam PC_WIDTH = ADDR_WIDTH;
 `endif
 
 localparam PC_TAG = ADDR_WIDTH - PC_WIDTH;
-typedef logic [PC_WIDTH-1:0] PC_Path;
+typedef struct packed {
+    ThreadID tid;
+    logic [PC_WIDTH-1:0] addr;
+} PC_Path;
 
 // 圧縮されたPCを32ビットアドレスに変換する
 function automatic AddrPath ToAddrFromPC ( PC_Path pc );
 `ifdef RSD_NARROW_PC
-    return { pc[PC_WIDTH-1], { PC_TAG{1'b0} }, pc[PC_WIDTH-2:0] };
+    return { pc.addr[PC_WIDTH-1], { PC_TAG{1'b0} }, pc.addr[PC_WIDTH-2:0] };
 `else
-    return pc;
+    return pc.addr;
 `endif
 endfunction
 
-// 32ビットアドレスを圧縮する
-function automatic PC_Path ToPC_FromAddr ( AddrPath addr );
+// 32ビットアドレスを圧縮する (tid needs to be provided separately)
+function automatic PC_Path ToPC_FromAddr ( AddrPath addr, ThreadID tid );
 `ifdef RSD_NARROW_PC
-    return { addr[ADDR_WIDTH-1], addr [PC_WIDTH-2:0] };
+    return '{ tid: tid, addr: { addr[ADDR_WIDTH-1], addr [PC_WIDTH-2:0] } };
 `else
-    return addr;
+    return '{ tid: tid, addr: addr };
 `endif
 endfunction
 

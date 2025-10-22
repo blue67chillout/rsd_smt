@@ -16,14 +16,16 @@ import ActiveListIndexTypes::*;
 import CSR_UnitTypes::*;
 
 interface CSR_UnitIF(
-    input logic clk, rst, rstStart, reqExternalInterrupt, 
+    input logic clk, rst, rstStart, reqExternalInterrupt,
     ExternalInterruptCodePath externalInterruptCode
 );
+
+    ThreadID tid;  // Thread ID for per-thread CSRs
 
     logic csrWE;  // CSR write enable
     CSR_NumberPath csrNumber;   // CSR number
     CSR_Code csrCode;           // CSR operation code (ex. set, clear...)
-    DataPath csrReadOut;        // a register value read from CSR 
+    DataPath csrReadOut;        // a register value read from CSR
     DataPath csrWriteIn;        // a value to be written to CSR
     CSR_BodyPath csrWholeOut;   // whole values of CSR
 

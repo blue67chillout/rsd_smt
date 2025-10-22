@@ -17,7 +17,9 @@ localparam CONF_DISPATCH_WIDTH = CONF_FETCH_WIDTH;    // Dispatch width
 // ---- Commit
 // Commit width (instructions). This parameter is configurable.
 // must be equal or larger than RENAME_WIDTH (FETCH_WIDTH) for recovery
-localparam CONF_COMMIT_WIDTH = 2;     
+localparam CONF_COMMIT_WIDTH = 2;
+
+localparam CONF_THREAD_NUM  = 2 ;
 
 
 // --- Back-end

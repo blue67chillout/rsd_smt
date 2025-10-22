@@ -27,6 +27,18 @@ module NextPCStage(
     DebugIF.NextPCStage debug
 );
 
+    // Thread arbitration: Round-robin
+    ThreadID threadCounter;
+    always_ff @(posedge port.clk) begin
+        if (port.rst) begin
+            threadCounter <= 0;
+        end else if (!stall) begin
+            threadCounter <= (threadCounter + 1) % THREAD_NUM;
+        end
+    end
+
+    assign port.selectedTid = threadCounter;
+
 `ifdef RSD_STOP_FETCH_ON_PRED_MISS
     typedef enum logic {
         PHASE_FETCH,
@@ -137,33 +149,35 @@ module NextPCStage(
     //
     always_comb begin
 
-        // Decide the address to input to the branch predictor
-        if (recovery.toRecoveryPhase) begin
-            // Branch misprediction or an exception etc. is detected
-            // Refetch instruction specified by Rw, Cm stage
-            predNextPC = recovery.recoveredPC_FromRwCommit;
-        end
-        else if (recovery.recoverFromRename) begin
-            // Detect branch misprediction in decode stage
-            predNextPC = recovery.recoveredPC_FromRename;
-        end
-        else begin
-            // Use current PC
-            predNextPC = port.pcOut;
+    // Decide the address to input to the branch predictor
+    if (recovery.toRecoveryPhase) begin
+    // Branch misprediction or an exception etc. is detected
+    // Refetch instruction specified by Rw, Cm stage
+    predNextPC = recovery.recoveredPC_FromRwCommit;
+    end
+    else if (recovery.recoverFromRename) begin
+    // Detect branch misprediction in decode stage
+    predNextPC = recovery.recoveredPC_FromRename;
+    end
+    else begin
+    // Use current PC of selected thread
+    predNextPC = port.pcOut[port.selectedTid];
+            predNextPC.tid = port.selectedTid;
 
-            for (int i = 0; i < FETCH_WIDTH; i++) begin
-                // Process of branch prediction:
-                // If BTB is hit, the instruction is predicted to be a branch. 
-                // In addition, if the branch is predicted as Taken, 
-                // the address read from BTB is used as next PC.
-                if (!regStall && next.fetchStageIsValid[i] && 
-                        next.btbHit[i] && next.brPredTaken[i]) begin
-                    // Use PC from BTB
-                    predNextPC = next.btbOut[i];
-                    break;
-                end
+    for (int i = 0; i < FETCH_WIDTH; i++) begin
+    // Process of branch prediction:
+    // If BTB is hit, the instruction is predicted to be a branch.
+    // In addition, if the branch is predicted as Taken,
+    // the address read from BTB is used as next PC.
+    if (!regStall && next.fetchStageIsValid[i] &&
+        next.btbHit[i] && next.brPredTaken[i]) begin
+    // Use PC from BTB
+    predNextPC = next.btbOut[i];
+        predNextPC.tid = port.selectedTid; // Ensure tid is set
+            break;
             end
         end
+    end
         // To Branch predictor
         port.predNextPC = predNextPC;
     end
@@ -174,40 +188,49 @@ module NextPCStage(
     //
     always_comb begin
 
-        // --- PC
-        if (port.interruptAddrWE) begin
-            // When an interrupt occurs, use interrupt address.
-            // NOTE: This input can be a critical path.
-            // Hence, interrupt address is input to PC first rather than 
-            // input to the branch predictor directly.
-            port.pcIn = port.interruptAddrIn;
+    // --- PC for selected thread
+    if (port.interruptAddrWE) begin
+    // When an interrupt occurs, use interrupt address.
+    // NOTE: This input can be a critical path.
+    // Hence, interrupt address is input to PC first rather than
+    // input to the branch predictor directly.
+    port.pcIn[port.selectedTid] = port.interruptAddrIn;
+        port.pcIn[port.selectedTid].tid = port.selectedTid; // Ensure tid
+    end
+    else if (beginStall) begin
+    // Update PC based on the branch prediction result accessed
+    // immediately before the stall if it is beginning of stall.
+    // (see the comment of regBrPred in FetchStage.sv)
+        port.pcIn[port.selectedTid] = predNextPC;
+    end
+    else begin
+    // Increment PC
+    port.pcIn[port.selectedTid] = predNextPC + FETCH_WIDTH*INSN_BYTE_WIDTH;
+    for (int i = 1; i < FETCH_WIDTH; i++) begin
+    if (StepOverCacheLine(predNextPC,
+                      predNextPC+i*INSN_BYTE_WIDTH)) begin
+    // When PC stepped over the border of cache line, stop there
+    port.pcIn[port.selectedTid] = predNextPC+i*INSN_BYTE_WIDTH;
+        break;
         end
-        else if (beginStall) begin
-            // Update PC based on the branch prediction result accessed
-            // immediately before the stall if it is beginning of stall.
-            // (see the comment of regBrPred in FetchStage.sv)
-            port.pcIn = predNextPC;
         end
-        else begin
-            // Increment PC
-            port.pcIn = predNextPC + FETCH_WIDTH*INSN_BYTE_WIDTH;
-            for (int i = 1; i < FETCH_WIDTH; i++) begin
-                if (StepOverCacheLine(predNextPC, 
-                                     predNextPC+i*INSN_BYTE_WIDTH)) begin
-                    // When PC stepped over the border of cache line, stop there
-                    port.pcIn = predNextPC+i*INSN_BYTE_WIDTH;
-                    break;
-                end
-            end
         end
 
-        for (int i = 0; i < FETCH_WIDTH; i++) begin
+        // For other threads, keep PC unchanged
+    for (int t = 0; t < THREAD_NUM; t++) begin
+    if (t != port.selectedTid) begin
+                port.pcIn[t] = port.pcOut[t];
+    end
+    end
+
+    for (int i = 0; i < FETCH_WIDTH; i++) begin
 `ifndef RSD_DISABLE_DEBUG_REGISTER
-            // Generate serial id for dumping
-            nextStage[i].sid = curSID + i;
+    // Generate serial id for dumping
+    nextStage[i].sid = curSID + i;
 `endif
-            nextStage[i].pc = predNextPC + i * INSN_BYTE_WIDTH;
-            if (port.interruptAddrWE || clear ||
+        nextStage[i].pc = predNextPC + i * INSN_BYTE_WIDTH;
+            nextStage[i].pc.tid = port.selectedTid; // Set tid for fetched instructions
+        if (port.interruptAddrWE || clear ||
                 StepOverCacheLine(predNextPC, nextStage[i].pc)) begin
                 nextStage[i].valid = FALSE;
             end

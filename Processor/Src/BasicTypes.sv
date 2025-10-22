@@ -9,6 +9,8 @@ import MicroArchConf::*;
 localparam TRUE  = 1'b1;
 localparam FALSE = 1'b0;
 
+
+
 // SID
 localparam OP_SERIAL_WIDTH = 10;
 typedef logic [OP_SERIAL_WIDTH-1:0] OpSerial;
@@ -38,6 +40,12 @@ typedef logic [DATA_WIDTH-1:0] DataPath;
 typedef logic signed [DATA_WIDTH-1:0] SignedDataPath;
 localparam DATA_MASK = 32'hffffffff;
 localparam DATA_ZERO = 32'h00000000;
+
+// Thread ID
+localparam THREAD_NUM = CONF_THREAD_NUM;
+localparam THREAD_NUM_BIT_WIDTH = $clog2(THREAD_NUM);
+typedef logic [THREAD_NUM_BIT_WIDTH-1:0] ThreadID;
+
 
 // Vector Data width
 localparam VEC_WIDTH = 128;

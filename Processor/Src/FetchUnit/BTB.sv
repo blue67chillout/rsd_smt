@@ -93,8 +93,9 @@ module BTB(
     always_ff @(posedge port.clk) begin
         // Push btb Queue
         if (port.rst) begin
-            btbQueue[resetIndex % BTB_QUEUE_SIZE].btbWA <= '0;
-            btbQueue[resetIndex % BTB_QUEUE_SIZE].btbWV <= '0;
+        btbQueue[resetIndex % BTB_QUEUE_SIZE].btbWA <= '0;
+        btbQueue[resetIndex % BTB_QUEUE_SIZE].btbWV <= '0;
+            btbQueue[resetIndex % BTB_QUEUE_SIZE].btbWV.tid <= 0;
         end
         else if (pushBtbQueue) begin
             btbQueue[headPtr].btbWA <= btbWA[INT_ISSUE_WIDTH-1];
@@ -115,7 +116,7 @@ module BTB(
             
         // Make logic for using at other module.
         for (int i = 0; i < FETCH_WIDTH; i++) begin
-            btbHit[i] = btbRV[i].valid && (btbRV[i].tag == ToBTB_Tag(tagReg[i]));
+            btbHit[i] = btbRV[i].valid && (btbRV[i].tag == ToBTB_Tag(tagReg[i])) && (btbRV[i].tid == tagReg[i].tid);
             btbOut[i] = ToRawAddrFromBTB_Addr(btbRV[i].data, tagReg[i]);
             readIsCondBr[i] = btbRV[i].isCondBr;
         end
@@ -139,6 +140,7 @@ module BTB(
 
             btbWA[i] = ToBTB_Index(port.brResult[i].brAddr);
             btbWV[i].tag = ToBTB_Tag(port.brResult[i].brAddr);
+            btbWV[i].tid = port.brResult[i].brAddr.tid;
             btbWV[i].data = ToBTB_Addr(port.brResult[i].nextAddr);
             btbWV[i].valid = TRUE;
             btbWV[i].isCondBr = port.brResult[i].isCondBr;
@@ -163,6 +165,7 @@ module BTB(
                 btbWE[i] = (i == 0) ? TRUE : FALSE;
                 btbWA[i] = resetIndex;
                 btbWV[i].tag = 0;
+                btbWV[i].tid = 0;
                 btbWV[i].data = 0;
                 btbWV[i].valid = FALSE;
             end

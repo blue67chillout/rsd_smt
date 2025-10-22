@@ -12,12 +12,13 @@ import FetchUnitTypes::*;
 import MemoryMapTypes::*;
 
 interface NextPCStageIF( input logic clk, rst, rstStart );
-    
+
     // PC
     logic    pcWE;
-    PC_Path  pcOut;
-    PC_Path  pcIn;
+    PC_Path  pcOut[THREAD_NUM];
+    PC_Path  pcIn[THREAD_NUM];
 
+    ThreadID selectedTid;
     PC_Path  predNextPC;
 
     // Executed branch results for updating a branch predictor.
@@ -50,6 +51,7 @@ interface NextPCStageIF( input logic clk, rst, rstStart );
         interruptAddrIn,
         interruptAddrWE,
     output
+        selectedTid,
         pcWE,
         pcIn,
         predNextPC,

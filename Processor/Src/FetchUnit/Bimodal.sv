@@ -10,12 +10,12 @@ import BasicTypes::*;
 import MemoryMapTypes::*;
 import FetchUnitTypes::*;
 
-function automatic PHT_IndexPath ToPHT_Index_Local(PC_Path addr);
-    return
-        addr[
-            PHT_ENTRY_NUM_BIT_WIDTH + INSN_ADDR_BIT_WIDTH - 1: 
-            INSN_ADDR_BIT_WIDTH
-        ];
+function automatic PHT_IndexPath ToPHT_Index_Local(PC_Path pc);
+logic [PHT_ENTRY_NUM_BIT_WIDTH-1:0] index = pc.addr[
+PHT_ENTRY_NUM_BIT_WIDTH + INSN_ADDR_BIT_WIDTH - 1:
+INSN_ADDR_BIT_WIDTH
+];
+return index ^ pc.tid;
 endfunction
 
 module Bimodal(
