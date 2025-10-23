@@ -15,7 +15,7 @@ interface NextPCStageIF( input logic clk, rst, rstStart );
 
     // PC
     logic    pcWE;
-    PC_Path  pcOut[THREAD_NUM];
+    PC_Path  pcOut;  // Single output for active thread
     PC_Path  pcIn[THREAD_NUM];
 
     ThreadID selectedTid;
@@ -37,7 +37,7 @@ interface NextPCStageIF( input logic clk, rst, rstStart );
 
     modport PC(
     input
-        clk, rst, pcWE, pcIn,
+        clk, rst, pcWE, pcIn, selectedTid,
     output
         pcOut
     );

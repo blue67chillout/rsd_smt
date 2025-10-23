@@ -63,12 +63,12 @@ function automatic AddrPath ToAddrFromPC ( PC_Path pc );
 `endif
 endfunction
 
-// 32ビットアドレスを圧縮する (tid needs to be provided separately)
-function automatic PC_Path ToPC_FromAddr ( AddrPath addr, ThreadID tid );
+// 32ビットアドレスを圧縮する
+function automatic PC_Path ToPC_FromAddr ( AddrPath addr );
 `ifdef RSD_NARROW_PC
-    return '{ tid: tid, addr: { addr[ADDR_WIDTH-1], addr [PC_WIDTH-2:0] } };
+    return '{ tid: 0, addr: { addr[ADDR_WIDTH-1], addr [PC_WIDTH-2:0] } };
 `else
-    return '{ tid: tid, addr: addr };
+    return '{ tid: 0, addr: addr };
 `endif
 endfunction
 

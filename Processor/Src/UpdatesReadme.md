@@ -76,10 +76,20 @@ This document summarizes all changes made to convert the RISC-V out-of-order pro
 ## 7. Other Propagations
 - **Interfaces**: Updated all relevant IFs (e.g., `PipelineTypes.sv`, `ControllerIF.sv`) to include `ThreadID` where needed for thread-specific operations.
 - **RenameLogic**: Duplicate rename tables and free lists per-thread (modify `RenameLogic.sv`).
+  - Added `ThreadID renameTid [RENAME_WIDTH];` and `commitTid [COMMIT_WIDTH];`.
+  - Generated per-thread `MultiWidthFreeList` instances.
+  - Index free lists with `tid` in allocation/release logic.
 - **Scheduler/ActiveList**: Duplicate per-thread (modify `ActiveList.sv`).
+  - Instantiate separate ROB queues per-thread.
+  - Use `tid` to select thread's ActiveList for allocation/commit.
 - **LoadStoreUnit**: Duplicate load/store queues per-thread (modify LSQ modules).
-- **Controller**: Add thread arbitration in pipeline control.
-- **Core**: Instantiate per-thread contexts or unified multi-thread controller.
+  - Change LSQ to arrays `[THREAD_NUM]`.
+  - Propagate `tid` through load/store operations.
+- **Controller**: Add thread arbitration in pipeline control (modify `Controller.sv`).
+  - Update stall/clear logic to handle per-thread pipelines.
+  - Add round-robin thread selection for shared resources.
+- **Core**: Instantiate per-thread contexts (modify `Core.sv`).
+  - Instantiate separate pipelines or shared with `tid` multiplexing.
 
 ## Testbench
 - **File**: `SMT_Testbench.sv`

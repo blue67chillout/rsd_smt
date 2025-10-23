@@ -66,7 +66,7 @@ typedef logic [LSCALAR_NUM_BIT_WIDTH-1:0] LScalarRegNumPath;
 
 // Physical register number width
 localparam PSCALAR_NUM = CONF_PSCALAR_NUM;
-localparam PSCALAR_NUM_BIT_WIDTH = $clog2( PSCALAR_NUM );
+localparam PSCALAR_NUM_BIT_WIDTH = $clog2( THREAD_NUM * PSCALAR_NUM );
 typedef logic [PSCALAR_NUM_BIT_WIDTH-1:0] PScalarRegNumPath;
 
 // Logical fp register number width
@@ -76,7 +76,7 @@ typedef logic [LSCALAR_FP_NUM_BIT_WIDTH-1:0] LScalarFPRegNumPath;
 
 // Physical fp register number width
 localparam PSCALAR_FP_NUM = CONF_PSCALAR_FP_NUM;
-localparam PSCALAR_FP_NUM_BIT_WIDTH = $clog2( PSCALAR_FP_NUM );
+localparam PSCALAR_FP_NUM_BIT_WIDTH = $clog2( THREAD_NUM * PSCALAR_FP_NUM );
 typedef logic [PSCALAR_FP_NUM_BIT_WIDTH-1:0] PScalarFPRegNumPath;
 
 // Logical general register ( scalar int register + fp register) number width

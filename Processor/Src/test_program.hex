@@ -1,0 +1,10 @@
+// Both threads start at 0x00001000 (word address 0x400 = 1024 decimal)
+// The programs use thread ID to branch to different code sections
+@00000400
+00100093
+00208113
+00310193
+00000013
+00000013
+00000013
+0000006f

@@ -80,8 +80,7 @@ module Bimodal(
             .tailPtr(tailPtr)    
         );
     endgenerate
-    
-    
+
     // Counter for reset sequence.
     PHT_IndexPath resetIndex;
     always_ff @(posedge port.clk) begin
@@ -107,7 +106,7 @@ module Bimodal(
 
 
     always_comb begin
-    
+
         pcIn = port.predNextPC;
 
         for (int i = 0; i < FETCH_WIDTH; i++) begin
@@ -144,10 +143,10 @@ module Bimodal(
             phtWA[i] = ToPHT_Index_Local(port.brResult[i].brAddr);
 
             mispred = port.brResult[i].mispred && port.brResult[i].valid;
-            
+
             // Counter's value.
             phtPrevValue[i] = port.brResult[i].phtPrevValue; 
-            
+
             // Update PHT's counter (saturated up/down counter).
             if (port.brResult[i].execTaken) begin
                 phtWV[i] = (phtPrevValue[i] == PHT_ENTRY_MAX) ? 

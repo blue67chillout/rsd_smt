@@ -27,6 +27,10 @@ module RenameLogic (
     PScalarRegNumPath releasedPhyScalarRegNum [ COMMIT_WIDTH ];
     ScalarFreeListCountPath scalarFreeListCount;
 
+    // Per-thread signals
+    ThreadID renameTid [ RENAME_WIDTH ];
+    ThreadID commitTid [ COMMIT_WIDTH ];
+
 `ifdef RSD_MARCH_FP_PIPE
     logic allocatePhyScalarFPReg [ RENAME_WIDTH ];
     PScalarFPRegNumPath allocatedPhyScalarFPRegNum [ RENAME_WIDTH ];
@@ -38,26 +42,30 @@ module RenameLogic (
     ActiveListEntry alReadData [ COMMIT_WIDTH ];
 
     //
-    // --- Free lists for registers.
+    // --- Free lists for registers (per-thread).
     //
+    generate
+    for (genvar t = 0; t < THREAD_NUM; t++) begin
     MultiWidthFreeList #(
         .SIZE( SCALAR_FREE_LIST_ENTRY_NUM ),
         .ENTRY_BIT_SIZE( PSCALAR_NUM_BIT_WIDTH ),
         .PUSH_WIDTH( COMMIT_WIDTH ),
-        .POP_WIDTH( RENAME_WIDTH ),
+            .POP_WIDTH( RENAME_WIDTH ),
         .INITIAL_LENGTH( SCALAR_FREE_LIST_ENTRY_NUM )
     ) scalarFreeList (
         .clk( port.clk ),
         .rst( port.rst ),
-        .rstStart( port.rstStart ),
+            .rstStart( port.rstStart ),
         .count( scalarFreeListCount ),
 
-        .pop( allocatePhyScalarReg ),
+            .pop( allocatePhyScalarReg ),  // TODO: Index with tid
         .poppedData( allocatedPhyScalarRegNum ),
 
-        .push( releasePhyScalarReg ),
-        .pushedData( releasedPhyScalarRegNum )
-    );
+            .push( releasePhyScalarReg ),
+            .pushedData( releasedPhyScalarRegNum )
+        );
+    end
+    endgenerate
 
 `ifdef RSD_MARCH_FP_PIPE
     MultiWidthFreeList #(

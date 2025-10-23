@@ -161,7 +161,7 @@ module NextPCStage(
     end
     else begin
     // Use current PC of selected thread
-    predNextPC = port.pcOut[port.selectedTid];
+    predNextPC = port.pcOut;
             predNextPC.tid = port.selectedTid;
 
     for (int i = 0; i < FETCH_WIDTH; i++) begin

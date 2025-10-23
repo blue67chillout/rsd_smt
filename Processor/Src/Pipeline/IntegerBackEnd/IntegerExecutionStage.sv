@@ -213,7 +213,7 @@ module IntegerExecutionStage(
             brResult[i].isCondBr = !isJump[i];
             
             // The address of a branch.
-            brResult[i].brAddr = ToPC_FromAddr(pc[i]);
+            brResult[i].brAddr = pc[i];
 
             // ターゲットアドレスの計算
             if( brTaken[i] ) begin
@@ -226,14 +226,16 @@ module IntegerExecutionStage(
                     );
             end
             else begin
-                brResult[i].nextAddr = ToPC_FromAddr(pc[i] + INSN_BYTE_WIDTH);
+                PC_Path currentPC = pc[i];
+                logic [31:0] nextAddr = currentPC.addr + INSN_BYTE_WIDTH;
+                brResult[i].nextAddr = '{tid: currentPC.tid, addr: nextAddr};
             end
             brResult[i].execTaken = brTaken[i];
             brResult[i].predTaken = bPred[i].predTaken;
             brResult[i].valid = isBranch[i] && pipeReg[i].valid && regValid[i];
             brResult[i].globalHistory = bPred[i].globalHistory;
             brResult[i].phtPrevValue = bPred[i].phtPrevValue;
-                    
+
             // 予測ミス判定
             predMiss[i] =
                 brResult[i].valid &&
